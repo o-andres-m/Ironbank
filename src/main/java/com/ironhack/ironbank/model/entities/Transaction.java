@@ -1,6 +1,5 @@
 package com.ironhack.ironbank.model.entities;
 
-import com.ironhack.ironbank.model.defaults.Money;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,13 +10,14 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @Entity
+@Table(name = "transactions")
 public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private String transaction_id;
 
-    private String from;
+    private String fromAcount;
 
     @ManyToOne
     @JoinColumn(name = "account_id")

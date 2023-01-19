@@ -1,7 +1,5 @@
 package com.ironhack.ironbank.model.entities;
 
-import com.ironhack.ironbank.model.defaults.Money;
-import com.ironhack.ironbank.model.defaults.PenaltyFee;
 import com.ironhack.ironbank.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.Data;
