@@ -1,7 +1,7 @@
 package com.ironhack.ironbank.controller;
 
 import com.ironhack.ironbank.dto.UserDto;
-import com.ironhack.ironbank.model.User;
+import com.ironhack.ironbank.model.entities.User;
 import com.ironhack.ironbank.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

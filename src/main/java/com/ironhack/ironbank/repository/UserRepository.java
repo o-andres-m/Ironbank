@@ -1,7 +1,7 @@
 package com.ironhack.ironbank.repository;
 
 
-import com.ironhack.ironbank.model.User;
+import com.ironhack.ironbank.model.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

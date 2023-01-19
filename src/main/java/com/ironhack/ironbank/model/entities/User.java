@@ -1,4 +1,4 @@
-package com.ironhack.ironbank.model;
+package com.ironhack.ironbank.model.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -19,6 +19,10 @@ public class User {
     private String username;
 
     private String password;
+
+    private String name;
+
+    private String email;
 
     private String roles;
 
