@@ -8,8 +8,8 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: create
-  #profiles:
-    #active: load-data
+  profiles:
+    active: load-data
 
 server:
   port: 8080
