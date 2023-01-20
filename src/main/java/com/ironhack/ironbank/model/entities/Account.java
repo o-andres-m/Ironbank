@@ -1,11 +1,14 @@
 package com.ironhack.ironbank.model.entities;
 
+import com.ironhack.ironbank.model.defaults.Money;
+import com.ironhack.ironbank.model.defaults.PenaltyFee;
 import com.ironhack.ironbank.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -13,36 +16,41 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Table(name = "accounts")
 public class Account {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
 
     private String number;
 
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String secretKey;
 
     // TODO : Preguntar aqui que pasa..
-    //private Money balance;
-
-    //private Money minimumBalance;
+    @Embedded
+    //@AttributeOverrides({
+      //      @AttributeOverride(name = "currency", column = @Column(name = "first_name")),
+        //    @AttributeOverride(name = "amount", column = @Column(name = "last_name"))
+   // })
+    private Money balance;
 
     @ManyToOne
-    @JoinColumn(name = "accountHolder_id")
+    @JoinColumn(name = "primaryOwner_id")
     private AccountHolder primaryOwner;
 
-    //TODO: Ver tema de doble relacion...
-    //@ManyToOne
-    //private AccountHolder secondaryOwner;
+    @ManyToOne
+    @JoinColumn(name = "secondaryOwner_id")
+    private AccountHolder secondaryOwner;
 
     private Status status;
 
-    @OneToMany (mappedBy = "toAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany (mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transaction> transactionList;
 
-    //TODO: Preguntar...
-    //private PenaltyFee penaltyFee;
+    @Embedded
+    private PenaltyFee penaltyFee;
 
     @CreationTimestamp
     private Instant creationDate;

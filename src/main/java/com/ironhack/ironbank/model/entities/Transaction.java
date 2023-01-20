@@ -1,5 +1,7 @@
 package com.ironhack.ironbank.model.entities;
 
+import com.ironhack.ironbank.model.defaults.Money;
+import com.ironhack.ironbank.model.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,21 +17,22 @@ public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String transaction_id;
-
-    private String fromAcount;
+    private String transactionId;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
-    private Account toAccount;
+    private Account account;
 
-    // TODO: Preguntar aqui que pasa...
-    //private Money amount;
+    @Embedded
+    private Money amount;
 
     @CreationTimestamp
     private Instant date;
 
-    private String description;
+    private String observations;
+
+    @Enumerated(EnumType.STRING)
+    private TransactionType transactionType;
 
 
 }

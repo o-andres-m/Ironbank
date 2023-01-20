@@ -1,13 +1,8 @@
-
 package com.ironhack.ironbank.model.defaults;
-
-import jakarta.persistence.Embeddable;
 
 import java.math.BigDecimal;
 
-@Embeddable
-public class Maintenance {
+public class MontlyMaintenance {
 
     private BigDecimal maintenanceAmount;
-
 }

@@ -2,11 +2,10 @@ package com.ironhack.ironbank.model.defaults;
 
 import jakarta.persistence.Embeddable;
 
-import java.math.BigDecimal;
-
 @Embeddable
-public class PenaltyFee {
+public class Address {
 
-    private BigDecimal penaltyAmount;
+    private String address;
 
+    private String email;
 }

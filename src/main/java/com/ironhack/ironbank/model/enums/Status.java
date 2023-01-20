@@ -2,5 +2,5 @@ package com.ironhack.ironbank.model.enums;
 
 public enum Status {
 
-    ACTIVE,LOCKED
+    ACTIVE,LOCKED,CLOSED
 }

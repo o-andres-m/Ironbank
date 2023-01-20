@@ -15,6 +15,8 @@ import java.util.List;
 @Entity
 public class ThirdParty extends User{
 
+    private String nif;
+
     private String companyName;
 
     @OneToMany (mappedBy = "thirdParty", cascade = CascadeType.ALL, orphanRemoval = true)
