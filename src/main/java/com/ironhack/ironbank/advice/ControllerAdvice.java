@@ -1,6 +1,7 @@
 package com.ironhack.ironbank.advice;
 
 
+import com.ironhack.ironbank.exception.EspecificException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,18 +15,11 @@ import java.util.Map;
 @RestControllerAdvice
 public class ControllerAdvice {
 
-    /*
-    Exception example:
-
-    @ExceptionHandler(ProductNotFoundException.class)
+    @ExceptionHandler(EspecificException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String getNotFoundHandler(ProductNotFoundException ex){
+    public String getNotFoundHandler(EspecificException ex){
         return ex.getMessage();
     }
-
-
-     */
-
 
     @ExceptionHandler(WebExchangeBindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

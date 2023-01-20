@@ -1,5 +1,6 @@
 package com.ironhack.ironbank.model.entities;
 
+import com.ironhack.ironbank.dto.AccountHolderDto;
 import com.ironhack.ironbank.model.defaults.Address;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
@@ -30,6 +31,19 @@ public class AccountHolder extends User{
 
     @OneToMany (mappedBy = "primaryOwner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Account> accountList;
+
+    public AccountHolder fromDto(AccountHolderDto accountHolderDto){
+        var accountHolder = new AccountHolder();
+
+        accountHolder.setUsername(accountHolderDto.getUsername());
+        accountHolder.setPassword(accountHolderDto.getPassword());
+        accountHolder.setNif(accountHolderDto.getNif());
+        accountHolder.setFirstName(accountHolderDto.getFirstName());
+        accountHolder.setLastName(accountHolderDto.getLastName());
+        accountHolder.setDateOfBirth(accountHolderDto.getDateOfBirth());
+        accountHolder.setAddress(accountHolderDto.getAddress());
+        return accountHolder;
+    }
 
 
 }

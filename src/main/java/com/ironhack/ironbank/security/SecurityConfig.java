@@ -33,6 +33,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST,"/user").hasRole("ADMIN")
 
 
+                .requestMatchers(HttpMethod.POST,"/holders/register").permitAll()
+
+
                 .anyRequest()
                 .authenticated()
                 .and()
