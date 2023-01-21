@@ -1,32 +1,25 @@
-package com.ironhack.ironbank.service;
+package com.ironhack.ironbank.service.utils;
 
+import com.ironhack.ironbank.model.entities.accounts.Account;
+import com.ironhack.ironbank.model.entities.accounts.CheckingAccount;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
+import com.ironhack.ironbank.model.entities.users.User;
+import com.ironhack.ironbank.repository.AccountRepository;
+import com.ironhack.ironbank.repository.CheckingAccountRepository;
 import com.ironhack.ironbank.setting.Settings;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.Check;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
-public class Utils {
+public class AccountUtils {
 
+    private final CheckingAccountRepository checkingAccountRepository;
 
-
-    public static int calculateAge(LocalDate dateOfBirth){
-        return Period.between(dateOfBirth, LocalDate.now()).getYears();
-    }
-
-    public static boolean isAdult(int age){
-        return age >= 18;
-    }
-
-    public static boolean isOver24(int age){
-        return age >= 24;
-    }
 
     /**
      * Return automatic Account Number Generated.
@@ -43,5 +36,10 @@ public class Utils {
                 accountHolder.getDateOfBirth().toString().substring(2,4)+
                 ft.format(dNow);
     }
+
+
+
+
+
 
 }

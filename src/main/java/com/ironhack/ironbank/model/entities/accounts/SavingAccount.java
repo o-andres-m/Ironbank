@@ -28,4 +28,11 @@ public class SavingAccount extends Account {
         this.minimumBalance = BigDecimal.valueOf(1000);
         this.interests = new Interests(0.0025);
     }
+
+    public void setInterests(Double value){
+        if (value>0.5) value=0.5;
+        if (value<0.0025) value=0.0025;
+        this.interests.setValue(value);
+    }
+
 }

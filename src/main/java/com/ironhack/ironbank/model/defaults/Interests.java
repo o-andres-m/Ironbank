@@ -19,8 +19,6 @@ public class Interests {
     }
 
     public void setValue(Double value) {
-        if (value>0.5) value=0.5;
-        if (value<0.0025) value=0.0025;
         this.interests = value;
     }
 }

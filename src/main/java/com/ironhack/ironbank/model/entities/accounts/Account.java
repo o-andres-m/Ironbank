@@ -5,7 +5,8 @@ import com.ironhack.ironbank.model.defaults.PenaltyFee;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.model.enums.Status;
-import com.ironhack.ironbank.service.Utils;
+import com.ironhack.ironbank.service.utils.AccountUtils;
+import com.ironhack.ironbank.service.utils.Utils;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -61,7 +62,7 @@ public class Account {
     public Account(AccountHolder primaryOwner) {
         this.secretKey = String.valueOf(UUID.randomUUID());
         this.primaryOwner = primaryOwner;
-        this.number = Utils.generateAccountNumber(primaryOwner);
+        this.number = AccountUtils.generateAccountNumber(primaryOwner);
         this.status = Status.ACTIVE;
         this.balance = new Money(BigDecimal.valueOf(0));
         this.penaltyFee = new PenaltyFee(BigDecimal.valueOf(40));
