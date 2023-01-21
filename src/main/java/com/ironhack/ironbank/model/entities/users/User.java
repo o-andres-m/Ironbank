@@ -1,4 +1,4 @@
-package com.ironhack.ironbank.model.entities;
+package com.ironhack.ironbank.model.entities.users;
 
 import jakarta.persistence.*;
 import lombok.Data;

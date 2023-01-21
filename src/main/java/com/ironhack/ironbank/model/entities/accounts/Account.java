@@ -1,8 +1,11 @@
-package com.ironhack.ironbank.model.entities;
+package com.ironhack.ironbank.model.entities.accounts;
 
 import com.ironhack.ironbank.model.defaults.Money;
 import com.ironhack.ironbank.model.defaults.PenaltyFee;
+import com.ironhack.ironbank.model.entities.users.AccountHolder;
+import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.model.enums.Status;
+import com.ironhack.ironbank.service.Utils;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +14,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -25,10 +29,8 @@ public class Account {
 
     private String number;
 
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String secretKey;
 
-    // TODO : Preguntar aqui que pasa..
     @Embedded
     //@AttributeOverrides({
       //      @AttributeOverride(name = "currency", column = @Column(name = "first_name")),
@@ -55,4 +57,13 @@ public class Account {
     @CreationTimestamp
     private Instant creationDate;
 
+
+    public Account(AccountHolder primaryOwner) {
+        this.secretKey = String.valueOf(UUID.randomUUID());
+        this.primaryOwner = primaryOwner;
+        this.number = Utils.generateAccountNumber(primaryOwner);
+        this.status = Status.ACTIVE;
+        this.balance = new Money(BigDecimal.valueOf(0));
+        this.penaltyFee = new PenaltyFee(BigDecimal.valueOf(40));
+    }
 }

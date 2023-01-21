@@ -1,7 +1,7 @@
 package com.ironhack.ironbank.service;
 
 import com.ironhack.ironbank.dto.UserDto;
-import com.ironhack.ironbank.model.entities.User;
+import com.ironhack.ironbank.model.entities.users.User;
 import com.ironhack.ironbank.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

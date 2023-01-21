@@ -2,7 +2,9 @@ package com.ironhack.ironbank.advice;
 
 
 import com.ironhack.ironbank.exception.EspecificException;
+import com.ironhack.ironbank.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -18,6 +20,12 @@ public class ControllerAdvice {
     @ExceptionHandler(EspecificException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String getNotFoundHandler(EspecificException ex){
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String getNotFoundHandler(UserNotFoundException ex){
         return ex.getMessage();
     }
 

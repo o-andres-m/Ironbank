@@ -20,27 +20,28 @@ public class Money {
      * Class constructor specifying amount, currency, and rounding
      **/
 
-    public Money(BigDecimal amount, Currency currency, RoundingMode rounding) {
-        //this.currency = currency;
+    public Money(BigDecimal amount, RoundingMode rounding) {
         setAmount(amount.setScale(currency.getDefaultFractionDigits(), rounding));
     }
 
     /**
      * Class constructor specifying amount, and currency. Uses default RoundingMode HALF_EVEN.
      **/
-    public Money(BigDecimal amount, Currency currency) {
-        this(amount, currency, DEFAULT_ROUNDING);
+
+    public Money(BigDecimal amount) {
+        this(amount, DEFAULT_ROUNDING);
     }
+
+
 
     /**
      * Class constructor specifying amount. Uses default RoundingMode HALF_EVEN and default currency EUR.
      **/
-    public Money(BigDecimal amount) {
-        this(amount, EUR, DEFAULT_ROUNDING);
-    }
-    public Money() {
 
+
+    public Money() {
     }
+
 
     public BigDecimal increaseAmount(Money money) {
         setAmount(this.amount.add(money.amount));
@@ -62,13 +63,11 @@ public class Money {
         return this.amount;
     }
 
-    /*
 
-    public Currency getCurrency() {
-        return this.currency;
+    public static Currency getCurrency() {
+        return EUR;
     }
 
-     */
 
     public BigDecimal getAmount() {
         return this.amount;
@@ -77,10 +76,10 @@ public class Money {
     private void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
-/*
+
     public String toString() {
         return getCurrency().getSymbol() + " " + getAmount();
     }
 
- */
+
 }

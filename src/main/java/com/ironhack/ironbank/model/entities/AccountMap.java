@@ -1,5 +1,6 @@
 package com.ironhack.ironbank.model.entities;
 
+import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

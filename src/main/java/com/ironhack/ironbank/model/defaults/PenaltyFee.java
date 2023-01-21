@@ -9,4 +9,18 @@ public class PenaltyFee {
 
     private BigDecimal penaltyAmount;
 
+    public PenaltyFee(BigDecimal valueOf) {
+        setPenaltyAmount(valueOf);
+    }
+
+    public PenaltyFee() {
+    }
+
+    public BigDecimal getPenaltyAmount() {
+        return penaltyAmount;
+    }
+
+    public void setPenaltyAmount(BigDecimal penaltyAmount) {
+        this.penaltyAmount = penaltyAmount;
+    }
 }

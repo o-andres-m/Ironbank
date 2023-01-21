@@ -1,5 +1,6 @@
 package com.ironhack.ironbank.controller;
 
+import com.ironhack.ironbank.dto.AccountDto;
 import com.ironhack.ironbank.dto.AccountHolderDto;
 import com.ironhack.ironbank.service.HoldersService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,14 @@ public class AccountHolderController {
     public AccountHolderDto register(@RequestBody AccountHolderDto accountHolderDto){
         return holdersService.register(accountHolderDto);
     }
+
+
+    @PostMapping("/create/accounts/{type}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AccountDto createAccount(@PathVariable String type){
+        return holdersService.createAccount(type);
+    }
+
 
 
 

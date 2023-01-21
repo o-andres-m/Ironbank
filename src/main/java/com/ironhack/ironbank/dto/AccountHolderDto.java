@@ -1,7 +1,6 @@
 package com.ironhack.ironbank.dto;
 
-import com.ironhack.ironbank.model.defaults.Address;
-import com.ironhack.ironbank.model.entities.AccountHolder;
+import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,9 +24,9 @@ public class AccountHolderDto {
 
     private LocalDate dateOfBirth;
 
-    private Address address;
-    // TODO: Preguntar si es correcto recibir un ADDRESS o por separado...
-    //private String email;
+    private String address;
+
+    private String email;
 
     public static AccountHolderDto fromAccountHolder(AccountHolder accountHolder){
         var accountHolderDto = new AccountHolderDto();
@@ -39,7 +38,9 @@ public class AccountHolderDto {
         accountHolderDto.setFirstName(accountHolder.getFirstName());
         accountHolderDto.setLastName(accountHolder.getLastName());
         accountHolderDto.setDateOfBirth(accountHolder.getDateOfBirth());
-        accountHolderDto.setAddress(accountHolder.getAddress());
+        accountHolderDto.setAddress(accountHolder.getAddress().getAddress());
+        accountHolderDto.setEmail(accountHolder.getAddress().getEmail());
+
         return accountHolderDto;
     }
 }

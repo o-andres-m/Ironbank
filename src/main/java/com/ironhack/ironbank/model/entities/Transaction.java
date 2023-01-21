@@ -1,6 +1,7 @@
 package com.ironhack.ironbank.model.entities;
 
 import com.ironhack.ironbank.model.defaults.Money;
+import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.Data;

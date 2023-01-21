@@ -1,7 +1,8 @@
-package com.ironhack.ironbank.model.entities;
+package com.ironhack.ironbank.model.entities.users;
 
 import com.ironhack.ironbank.dto.AccountHolderDto;
 import com.ironhack.ironbank.model.defaults.Address;
+import com.ironhack.ironbank.model.entities.accounts.Account;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -9,14 +10,13 @@ import jakarta.persistence.OneToMany;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
 @Data
 @Entity
 @NoArgsConstructor
-public class AccountHolder extends User{
+public class AccountHolder extends User {
 
     private String nif;
 
@@ -41,7 +41,7 @@ public class AccountHolder extends User{
         accountHolder.setFirstName(accountHolderDto.getFirstName());
         accountHolder.setLastName(accountHolderDto.getLastName());
         accountHolder.setDateOfBirth(accountHolderDto.getDateOfBirth());
-        accountHolder.setAddress(accountHolderDto.getAddress());
+        accountHolder.setAddress(new Address(accountHolderDto.getAddress(),accountHolderDto.getEmail()));
         return accountHolder;
     }
 

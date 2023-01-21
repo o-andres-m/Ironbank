@@ -1,9 +1,8 @@
-package com.ironhack.ironbank.model.entities;
+package com.ironhack.ironbank.model.entities.accounts;
 
 
 import com.ironhack.ironbank.model.defaults.Interests;
-import com.ironhack.ironbank.model.defaults.Money;
-import com.ironhack.ironbank.model.defaults.MontlyMaintenance;
+import com.ironhack.ironbank.model.entities.accounts.Account;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,7 @@ import java.math.BigDecimal;
 @Entity
 @NoArgsConstructor
 @Table(name = "credit_card_accounts")
-public class CreditCardAccount extends Account{
+public class CreditCardAccount extends Account {
 
     private BigDecimal minimumBalance;
 

@@ -1,9 +1,8 @@
-package com.ironhack.ironbank.model.entities;
+package com.ironhack.ironbank.model.entities.accounts;
 
 
 import com.ironhack.ironbank.model.defaults.Interests;
-import com.ironhack.ironbank.model.defaults.Money;
-import com.ironhack.ironbank.model.defaults.MontlyMaintenance;
+import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -16,10 +15,17 @@ import java.math.BigDecimal;
 @Entity
 @NoArgsConstructor
 @Table(name = "saving_accounts")
-public class SavingAccount extends Account{
+public class SavingAccount extends Account {
 
     private BigDecimal minimumBalance;
 
     @Embedded
     private Interests interests;
+
+
+    public SavingAccount(AccountHolder accountHolder) {
+        super(accountHolder);
+        this.minimumBalance = BigDecimal.valueOf(1000);
+        this.interests = new Interests(0.0025);
+    }
 }
