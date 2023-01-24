@@ -28,6 +28,9 @@ public class AccountHolderDto {
 
     private String email;
 
+    private String phone;
+
+
     public static AccountHolderDto fromAccountHolder(AccountHolder accountHolder){
         var accountHolderDto = new AccountHolderDto();
 
@@ -40,6 +43,7 @@ public class AccountHolderDto {
         accountHolderDto.setDateOfBirth(accountHolder.getDateOfBirth());
         accountHolderDto.setAddress(accountHolder.getAddress().getAddress());
         accountHolderDto.setEmail(accountHolder.getAddress().getEmail());
+        accountHolderDto.setPhone(accountHolder.getAddress().getPhone());
 
         return accountHolderDto;
     }

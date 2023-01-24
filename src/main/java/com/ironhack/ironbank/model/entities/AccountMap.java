@@ -2,6 +2,7 @@ package com.ironhack.ironbank.model.entities;
 
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,4 +23,8 @@ public class AccountMap {
     @JoinColumn(name = "thirdParty_id")
     private ThirdParty thirdParty;
 
+    public AccountMap(String account, String secretkey) {
+        setAccountNumber(account);
+        setAccountKey(secretkey);
+    }
 }

@@ -67,4 +67,5 @@ public class Account {
         this.balance = new Money(BigDecimal.valueOf(0));
         this.penaltyFee = new PenaltyFee(BigDecimal.valueOf(40));
     }
+
 }

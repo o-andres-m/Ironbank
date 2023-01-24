@@ -41,20 +41,29 @@ public class HoldersService {
 
 
     public AccountHolderDto register(AccountHolderDto accountHolderDto) {
-        var accountHolder = new AccountHolder();
-        accountHolder.setUsername(accountHolderDto.getUsername());
-        accountHolder.setPassword(passwordEncoder.encode(accountHolderDto.getPassword()));
-        accountHolder.setNif(accountHolderDto.getNif());
-        accountHolder.setRoles("ROLE_ACCOUNTHOLDER");
-        accountHolder.setFirstName(accountHolderDto.getFirstName());
-        accountHolder.setLastName(accountHolderDto.getLastName());
-        accountHolder.setDateOfBirth(accountHolderDto.getDateOfBirth());
-        accountHolder.setAddress(new Address(accountHolderDto.getAddress(),accountHolderDto.getEmail()));
 
-        if (Utils.calculateAge(accountHolder.getDateOfBirth())<18){
-            throw new EspecificException("Clients must have +18 to register. Please go to the Office of the Bank.");
+        var user = accountHolderDto.getUsername();
+
+        var findUserInDb = userRepository.findByUsername(user);
+        if (findUserInDb.isPresent()){
+            throw new EspecificException("Username already exists. Please change username.");
         }else {
-            return AccountHolderDto.fromAccountHolder(userRepository.save(accountHolder));
+
+            var accountHolder = new AccountHolder();
+            accountHolder.setUsername(user);
+            accountHolder.setPassword(passwordEncoder.encode(accountHolderDto.getPassword()));
+            accountHolder.setNif(accountHolderDto.getNif());
+            accountHolder.setRoles("ROLE_ACCOUNTHOLDER");
+            accountHolder.setFirstName(accountHolderDto.getFirstName());
+            accountHolder.setLastName(accountHolderDto.getLastName());
+            accountHolder.setDateOfBirth(accountHolderDto.getDateOfBirth());
+            accountHolder.setAddress(new Address(accountHolderDto.getAddress(), accountHolderDto.getEmail(), accountHolderDto.getPhone()));
+
+            if (Utils.calculateAge(accountHolder.getDateOfBirth()) < 18) {
+                throw new EspecificException("Clients must have +18 to register. Please go to the Office of the Bank.");
+            } else {
+                return AccountHolderDto.fromAccountHolder(userRepository.save(accountHolder));
+            }
         }
     }
 

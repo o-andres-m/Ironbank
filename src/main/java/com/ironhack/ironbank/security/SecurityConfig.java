@@ -34,6 +34,7 @@ public class SecurityConfig {
 
 
                 .requestMatchers(HttpMethod.POST,"/holders/register").permitAll()
+                .requestMatchers(HttpMethod.POST,"/thirdparty/register").permitAll()
 
                 .requestMatchers(HttpMethod.POST,"/holders/create/accounts/**").hasRole("ACCOUNTHOLDER")
 

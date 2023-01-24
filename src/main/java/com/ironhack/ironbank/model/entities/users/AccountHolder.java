@@ -41,7 +41,7 @@ public class AccountHolder extends User {
         accountHolder.setFirstName(accountHolderDto.getFirstName());
         accountHolder.setLastName(accountHolderDto.getLastName());
         accountHolder.setDateOfBirth(accountHolderDto.getDateOfBirth());
-        accountHolder.setAddress(new Address(accountHolderDto.getAddress(),accountHolderDto.getEmail()));
+        accountHolder.setAddress(new Address(accountHolderDto.getAddress(),accountHolderDto.getEmail(), accountHolderDto.getPhone()));
         return accountHolder;
     }
 
