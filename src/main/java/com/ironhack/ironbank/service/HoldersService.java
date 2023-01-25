@@ -12,6 +12,7 @@ import com.ironhack.ironbank.repository.AccountRepository;
 import com.ironhack.ironbank.repository.CheckingAccountRepository;
 import com.ironhack.ironbank.repository.CreditCardAccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
+import com.ironhack.ironbank.service.utils.AccountUtils;
 import com.ironhack.ironbank.service.utils.TransactionUtils;
 import com.ironhack.ironbank.service.utils.Utils;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class HoldersService {
 
     private final UserRepository userRepository;
 
-    private final PasswordEncoder passwordEncoder;
+    private final AccountUtils accountUtils;
 
     private final AccountRepository accountRepository;
 
@@ -43,29 +44,17 @@ public class HoldersService {
     public AccountHolderDto register(AccountHolderDto accountHolderDto) {
 
         var user = accountHolderDto.getUsername();
+        accountUtils.verifyUserExists(user);
 
-        var findUserInDb = userRepository.findByUsername(user);
-        if (findUserInDb.isPresent()){
-            throw new EspecificException("Username already exists. Please change username.");
-        }else {
-
-            var accountHolder = new AccountHolder();
-            accountHolder.setUsername(user);
-            accountHolder.setPassword(passwordEncoder.encode(accountHolderDto.getPassword()));
-            accountHolder.setNif(accountHolderDto.getNif());
-            accountHolder.setRoles("ROLE_ACCOUNTHOLDER");
-            accountHolder.setFirstName(accountHolderDto.getFirstName());
-            accountHolder.setLastName(accountHolderDto.getLastName());
-            accountHolder.setDateOfBirth(accountHolderDto.getDateOfBirth());
-            accountHolder.setAddress(new Address(accountHolderDto.getAddress(), accountHolderDto.getEmail(), accountHolderDto.getPhone()));
-
-            if (Utils.calculateAge(accountHolder.getDateOfBirth()) < 18) {
-                throw new EspecificException("Clients must have +18 to register. Please go to the Office of the Bank.");
-            } else {
-                return AccountHolderDto.fromAccountHolder(userRepository.save(accountHolder));
+        if (Utils.calculateAge(accountHolderDto.getDateOfBirth())<18) {
+            throw new EspecificException("You must have 18 years for register. Please go to the Bank.");
+        }else{
+            var accountHolder = accountUtils.createAccountHolder(accountHolderDto, user);
+            return AccountHolderDto.fromAccountHolder(userRepository.save(accountHolder));
             }
         }
-    }
+
+
 
     /*
     Method to get the account Holder

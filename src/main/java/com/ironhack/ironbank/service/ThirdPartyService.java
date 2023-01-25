@@ -9,6 +9,7 @@ import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import com.ironhack.ironbank.model.entities.users.User;
 import com.ironhack.ironbank.repository.AccountMapRepository;
 import com.ironhack.ironbank.repository.UserRepository;
+import com.ironhack.ironbank.service.utils.AccountUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,8 +24,7 @@ public class ThirdPartyService {
 
     private final UserRepository userRepository;
 
-    private final PasswordEncoder passwordEncoder;
-
+    private final AccountUtils accountUtils;
     private final AccountMapRepository accountMapRepository;
 
 
@@ -32,25 +32,15 @@ public class ThirdPartyService {
     public ThirdPartyDto createUser(ThirdPartyDto thirdPartyDto) {
 
         var user = thirdPartyDto.getUsername();
+        accountUtils.verifyUserExists(user);
 
-        var findUserInDb = userRepository.findByUsername(user);
-        if (findUserInDb.isPresent()){
-            throw new EspecificException("Username already exists. Please change username.");
-        }else {
-
-            var thirdParty = new ThirdParty();
-            thirdParty.setUsername(thirdPartyDto.getUsername());
-            thirdParty.setPassword(passwordEncoder.encode(thirdPartyDto.getPassword()));
-            thirdParty.setNif(thirdPartyDto.getNif());
-            thirdParty.setCompanyName(thirdPartyDto.getCompanyName());
-            thirdParty.setRoles("THIRDPARTY");
-            thirdParty.setAddress(new Address(thirdPartyDto.getAddress(), thirdPartyDto.getEmail(), thirdPartyDto.getPhone()));
-            //Lock the account. Only admins can Unlock.
-            thirdParty.setIsAccountNonLocked(false);
-
-            return ThirdPartyDto.fromThirdParty(userRepository.save(thirdParty));
-        }
+        var thirdParty = accountUtils.createThirdParty(thirdPartyDto);
+        //When thirdparty register himself, need to activate account.
+        thirdParty.setIsAccountNonLocked(false);
+        return ThirdPartyDto.fromThirdParty(userRepository.save(thirdParty));
     }
+
+
 
     public List<AccountMap> registerAccount(String account, String secretkey) {
         var thirdParty = getThirdParty();

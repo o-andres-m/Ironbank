@@ -28,9 +28,8 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeHttpRequests()
 
-                // Secured ENDPOINTS
-                .requestMatchers(HttpMethod.GET,"/user").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST,"/user").hasRole("ADMIN")
+                // Admin ENDPOINTS
+                .requestMatchers(HttpMethod.GET,"/admin/**").hasRole("ADMIN")
 
 
                 .requestMatchers(HttpMethod.POST,"/holders/register").permitAll()
