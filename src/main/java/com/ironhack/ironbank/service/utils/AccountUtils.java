@@ -36,10 +36,6 @@ public class AccountUtils {
 
     /**
      * Return automatic Account Number Generated.
-     * Format:
-     *
-     * @param accountHolder
-     * @return number of account
      */
     public static String generateAccountNumber(AccountHolder accountHolder){
         var dNow = new Date();

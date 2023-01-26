@@ -14,6 +14,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class AccountHolderDto {
 
+    private Long id;
+
     @NotBlank(message = "Username required.")
     private String username;
 
@@ -47,7 +49,7 @@ public class AccountHolderDto {
 
     public static AccountHolderDto fromAccountHolder(AccountHolder accountHolder){
         var accountHolderDto = new AccountHolderDto();
-
+        accountHolderDto.setId(accountHolder.getId());
         accountHolderDto.setUsername(accountHolder.getUsername());
         accountHolderDto.setPassword(accountHolder.getPassword());
         accountHolderDto.setRoles(accountHolder.getRoles());

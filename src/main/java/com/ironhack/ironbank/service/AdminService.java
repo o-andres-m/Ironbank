@@ -3,7 +3,9 @@ package com.ironhack.ironbank.service;
 import com.ironhack.ironbank.dto.AccountHolderDto;
 import com.ironhack.ironbank.dto.AdminDto;
 import com.ironhack.ironbank.dto.ThirdPartyDto;
+import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
+import com.ironhack.ironbank.model.entities.users.Admin;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import com.ironhack.ironbank.model.entities.users.User;
 import com.ironhack.ironbank.repository.UserRepository;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -72,6 +75,7 @@ public class AdminService {
         return listOfAHDto;
     }
 
+
     public List<ThirdPartyDto> searchTP(Optional<String> username, Optional<String> companyName, Optional<String> nif) {
 
         var listOfTP = userRepository.searchThirdParty(username.orElse(""),
@@ -87,7 +91,65 @@ public class AdminService {
     /**
      * Modify Methods
      */
+    public AccountHolderDto updateAH(Long id, Optional<String> username, Optional<String> firstName, Optional<String> lastName, Optional<String> nif, Optional<String> phone, Optional<String> email, Optional<LocalDate> dateOfBirth, Optional<String> address) {
 
+        var foundUser = userRepository.findById(id).orElseThrow(()-> new EspecificException("User with ID "+id+" not found."));
+        username.ifPresent(accountUtils::verifyUserExists);
+
+        if(foundUser.getRoles().equals("ROLE_ACCOUNTHOLDER")) {
+            var user =  (AccountHolder) foundUser;
+            username.ifPresent(user::setUsername);
+            firstName.ifPresent(user::setFirstName);
+            lastName.ifPresent(user::setLastName);
+            nif.ifPresent(user::setNif);
+            dateOfBirth.ifPresent(user::setDateOfBirth);
+            address.ifPresent(s -> user.getAddress().setAddress(s));
+            phone.ifPresent(s -> user.getAddress().setPhone(s));
+            email.ifPresent(s -> user.getAddress().setEmail(s));
+
+            return AccountHolderDto.fromAccountHolder(userRepository.save(user));
+        }else{
+            throw new EspecificException("ID "+id+" is not AccountHolder");
+        }
+    }
+
+    public ThirdPartyDto updateTP(Long id, Optional<String> username, Optional<String> companyName, Optional<String> nif, Optional<String> phone, Optional<String> email, Optional<String> address) {
+
+        var foundUser = userRepository.findById(id).orElseThrow(()-> new EspecificException("User with ID "+id+" not found."));
+        username.ifPresent(accountUtils::verifyUserExists);
+
+        if(foundUser.getRoles().equals("ROLE_TIRDPARTY")) {
+            var user =  (ThirdParty) foundUser;
+            username.ifPresent(user::setUsername);
+            companyName.ifPresent(user::setCompanyName);
+            nif.ifPresent(user::setNif);
+            address.ifPresent(s -> user.getAddress().setAddress(s));
+            phone.ifPresent(s -> user.getAddress().setPhone(s));
+            email.ifPresent(s -> user.getAddress().setEmail(s));
+
+            return ThirdPartyDto.fromThirdParty(userRepository.save(user));
+        }else{
+            throw new EspecificException("ID "+id+" is not ThirdParty");
+        }
+    }
+
+    public AdminDto updateAdmin(Long id, Optional<String> username, Optional<String> firstName, Optional<String> lastName, Optional<String> email) {
+
+        var foundUser = userRepository.findById(id).orElseThrow(()-> new EspecificException("User with ID "+id+" not found."));
+        username.ifPresent(accountUtils::verifyUserExists);
+
+        if(foundUser.getRoles().equals("ROLE_ADMIN")) {
+            var user =  (Admin) foundUser;
+            username.ifPresent(user::setUsername);
+            firstName.ifPresent(user::setFirstName);
+            lastName.ifPresent(user::setLastName);
+            email.ifPresent(user::setEmail);
+
+            return AdminDto.fromAdmin(userRepository.save(user));
+        }else{
+            throw new EspecificException("ID "+id+" is not Admin");
+        }
+    }
 
 }
 

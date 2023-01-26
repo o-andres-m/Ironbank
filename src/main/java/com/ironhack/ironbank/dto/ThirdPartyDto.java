@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ThirdPartyDto {
 
+    private Long id;
 
     @NotBlank(message = "Username required.")
     private String username;
@@ -40,6 +41,7 @@ public class ThirdPartyDto {
 
     public static ThirdPartyDto fromThirdParty (ThirdParty thirdParty){
         var thirdPartyDto = new ThirdPartyDto();
+        thirdPartyDto.setId(thirdParty.getId());
         thirdPartyDto.setUsername(thirdParty.getUsername());
         thirdPartyDto.setPassword(thirdParty.getPassword());
         thirdPartyDto.setNif(thirdParty.getNif());
