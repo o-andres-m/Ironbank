@@ -70,7 +70,7 @@ public class AccountUtils {
         thirdParty.setPassword(passwordEncoder.encode(thirdPartyDto.getPassword()));
         thirdParty.setNif(thirdPartyDto.getNif());
         thirdParty.setCompanyName(thirdPartyDto.getCompanyName());
-        thirdParty.setRoles("THIRDPARTY");
+        thirdParty.setRoles("ROLE_THIRDPARTY");
         thirdParty.setAddress(new Address(thirdPartyDto.getAddress(), thirdPartyDto.getEmail(), thirdPartyDto.getPhone()));
         return thirdParty;
     }

@@ -1,13 +1,16 @@
 package com.ironhack.ironbank.service;
 
+import com.ironhack.ironbank.dto.AccountDto;
 import com.ironhack.ironbank.dto.AccountHolderDto;
 import com.ironhack.ironbank.dto.AdminDto;
 import com.ironhack.ironbank.dto.ThirdPartyDto;
 import com.ironhack.ironbank.exception.EspecificException;
+import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.users.Admin;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import com.ironhack.ironbank.model.entities.users.User;
+import com.ironhack.ironbank.repository.AccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
 import com.ironhack.ironbank.service.utils.AccountUtils;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +30,7 @@ public class AdminService {
 
     private final AccountUtils accountUtils;
 
-    private final PasswordEncoder passwordEncoder;
+    private final AccountRepository accountRepository;
 
 
     /**
@@ -151,5 +154,22 @@ public class AdminService {
         }
     }
 
+    /**
+     * Accounts Methods
+     */
+    public List<AccountDto> allAccounts(Optional<String> username) {
+        var accountList = new ArrayList<Account>();
+        if (username.isEmpty()){
+            accountList = (ArrayList<Account>) accountRepository.findAll();
+        }else{
+            accountList = (ArrayList<Account>) accountRepository.findAccountByPrimaryOwner_Username(username.get());
+        }
+        var accountListDto = new ArrayList<AccountDto>();
+
+        for(Account account : accountList){
+            accountListDto.add(AccountDto.fromAccount(account));
+        }
+        return accountListDto;
+    }
 }
 

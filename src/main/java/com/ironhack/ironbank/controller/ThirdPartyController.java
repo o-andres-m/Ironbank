@@ -1,7 +1,7 @@
 package com.ironhack.ironbank.controller;
 
+import com.ironhack.ironbank.dto.AccountMapDto;
 import com.ironhack.ironbank.dto.ThirdPartyDto;
-import com.ironhack.ironbank.model.entities.AccountMap;
 import com.ironhack.ironbank.service.ThirdPartyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +24,14 @@ public class ThirdPartyController {
         return thirdPartyService.createUser(thirdPartyDto);
     }
 
+
     @PostMapping("/account")
-    @ResponseStatus(HttpStatus.CREATED)
-    public List<AccountMap> createUser (@RequestParam String account, @RequestParam String secretkey){
-        return thirdPartyService.registerAccount(account,secretkey);
+    public AccountMapDto registerAccount (@RequestParam String account, @RequestParam String secretKey){
+        return thirdPartyService.registerAccount(account, secretKey);
     }
 
+    @GetMapping("/account")
+    public List<AccountMapDto> allAccountMap(){
+        return thirdPartyService.allAcountMap();
+    }
 }

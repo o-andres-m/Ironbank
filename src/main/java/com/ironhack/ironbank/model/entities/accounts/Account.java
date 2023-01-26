@@ -22,7 +22,7 @@ import java.util.UUID;
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name = "accounts")
-public class Account {
+public abstract class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)

@@ -1,5 +1,6 @@
 package com.ironhack.ironbank.controller;
 
+import com.ironhack.ironbank.dto.AccountDto;
 import com.ironhack.ironbank.dto.AccountHolderDto;
 import com.ironhack.ironbank.dto.AdminDto;
 import com.ironhack.ironbank.dto.ThirdPartyDto;
@@ -104,5 +105,13 @@ public class AdminController {
         return adminService.updateAdmin(id, username, firstName, lastName, email);
     }
 
+    /**
+     * Admin & Accounts
+     */
+
+    @GetMapping("/accounts")
+    public List<AccountDto> allAccounts(@RequestParam Optional<String> username){
+        return adminService.allAccounts(username);
+    }
 
 }

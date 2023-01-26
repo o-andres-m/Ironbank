@@ -1,5 +1,6 @@
 package com.ironhack.ironbank.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -20,6 +21,7 @@ public class ThirdPartyDto {
     @NotBlank(message = "Password required.")
     private String password;
 
+    @JsonIgnore
     private String roles;
 
     @NotBlank(message = "Nif required.")
@@ -46,7 +48,7 @@ public class ThirdPartyDto {
         thirdPartyDto.setPassword(thirdParty.getPassword());
         thirdPartyDto.setNif(thirdParty.getNif());
         thirdPartyDto.setCompanyName(thirdParty.getCompanyName());
-        thirdPartyDto.setRoles("THIRDPARTY");
+        thirdPartyDto.setRoles("ROLE_THIRDPARTY");
         thirdPartyDto.setAddress(thirdParty.getAddress().getAddress());
         thirdPartyDto.setEmail(thirdParty.getAddress().getEmail());
         thirdPartyDto.setPhone(thirdParty.getAddress().getPhone());

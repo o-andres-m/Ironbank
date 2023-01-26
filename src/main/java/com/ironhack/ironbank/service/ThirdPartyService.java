@@ -1,5 +1,6 @@
 package com.ironhack.ironbank.service;
 
+import com.ironhack.ironbank.dto.AccountMapDto;
 import com.ironhack.ironbank.dto.ThirdPartyDto;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.exception.UserNotFoundException;
@@ -8,6 +9,7 @@ import com.ironhack.ironbank.model.entities.AccountMap;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import com.ironhack.ironbank.model.entities.users.User;
 import com.ironhack.ironbank.repository.AccountMapRepository;
+import com.ironhack.ironbank.repository.AccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
 import com.ironhack.ironbank.service.utils.AccountUtils;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,7 +28,10 @@ public class ThirdPartyService {
     private final UserRepository userRepository;
 
     private final AccountUtils accountUtils;
+
     private final AccountMapRepository accountMapRepository;
+
+    private final AccountRepository accountRepository;
 
 
 
@@ -42,31 +48,41 @@ public class ThirdPartyService {
 
 
 
-    public List<AccountMap> registerAccount(String account, String secretkey) {
+    public AccountMapDto registerAccount(String account, String secretkey) {
         var thirdParty = getThirdParty();
+        var accountToAdd = accountRepository.findAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account doesn't exists.")
+        );
+        if(accountToAdd.getSecretKey().equals(secretkey)){
 
-        // Faltaria verificar que la cuenta existe y la secretKey es correcta.
+            var foundAccount = accountMapRepository.findAccountMapByAccountNumberAndThirdPartyUsername(account,thirdParty.getUsername());
+            if(foundAccount.isPresent()) throw new EspecificException("Account is already registered");
 
-        var listOfAccountMap = accountMapRepository.findAllByThirdParty((ThirdParty) thirdParty);
-
-        var flag = false;
-        for(AccountMap accountMap : listOfAccountMap){
-            if (accountMap.getAccountNumber().equals(account)) {
-                flag = true;
-                break;
-            }
-        }
-        if (!flag){
             var accountMap = new AccountMap(account,secretkey);
-            listOfAccountMap.add(accountMap);
+            accountMap.setThirdParty((ThirdParty) thirdParty);
+            accountMapRepository.save(accountMap);
+            return AccountMapDto.fromAccountMap(accountMap);
+        }else{
+            throw new EspecificException("Account or SecretKey incorrect.");
         }
-        return accountMapRepository.saveAll(listOfAccountMap);
     }
+
 
     private User getThirdParty() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var thirdParty = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(()-> new UserNotFoundException(authentication.getName()));
         return thirdParty;
+    }
+
+
+    public List<AccountMapDto> allAcountMap() {
+        var thirdParty = getThirdParty();
+        var listOfAcountMap = accountMapRepository.findAllByThirdParty(thirdParty);
+        var listOfAccountMapDto = new ArrayList<AccountMapDto>();
+        for(AccountMap accountMap : listOfAcountMap){
+            listOfAccountMapDto.add(AccountMapDto.fromAccountMap(accountMap));
+        }
+        return listOfAccountMapDto;
     }
 }

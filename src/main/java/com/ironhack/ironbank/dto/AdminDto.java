@@ -1,5 +1,6 @@
 package com.ironhack.ironbank.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ironhack.ironbank.model.entities.users.Admin;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -17,6 +18,7 @@ public class AdminDto {
     private String username;
 
     @NotBlank(message = "Password required.")
+    @JsonIgnore
     private String password;
 
     @NotBlank(message = "First Name required.")

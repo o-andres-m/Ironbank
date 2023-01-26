@@ -1,6 +1,7 @@
 package com.ironhack.ironbank.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -22,6 +23,7 @@ public class AccountHolderDto {
     @NotBlank(message = "Password required.")
     private String password;
 
+    @JsonIgnore
     private String roles;
 
     @NotBlank(message = "Nif required.")
