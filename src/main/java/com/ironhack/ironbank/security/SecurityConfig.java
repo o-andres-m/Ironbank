@@ -1,5 +1,6 @@
 package com.ironhack.ironbank.security;
 
+import com.ironhack.ironbank.advice.ControllerAdvice;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
 @EnableWebSecurity
 @Configuration
@@ -29,11 +31,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
 
                 // Admin ENDPOINTS
-                .requestMatchers(HttpMethod.GET,"/admin/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
 
 
-                .requestMatchers(HttpMethod.POST,"/holders/register").permitAll()
-                .requestMatchers(HttpMethod.POST,"/thirdparty/register").permitAll()
+                // Public ENDPOINTS
+                .requestMatchers("/holders/register", "/thirdparty/register").permitAll()
 
                 .requestMatchers(HttpMethod.POST,"/holders/create/accounts/**").hasRole("ACCOUNTHOLDER")
 

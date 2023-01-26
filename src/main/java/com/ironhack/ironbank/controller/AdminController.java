@@ -4,6 +4,7 @@ import com.ironhack.ironbank.dto.AccountHolderDto;
 import com.ironhack.ironbank.dto.AdminDto;
 import com.ironhack.ironbank.dto.ThirdPartyDto;
 import com.ironhack.ironbank.service.AdminService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -26,13 +27,13 @@ public class AdminController {
 
     @PostMapping("/register/AH")
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountHolderDto registerAH(@RequestBody AccountHolderDto accountHolderDto) {
+    public AccountHolderDto registerAH(@Valid @RequestBody  AccountHolderDto accountHolderDto) {
         return adminService.registerAH(accountHolderDto);
     }
 
     @PostMapping("/register/TP")
     @ResponseStatus(HttpStatus.CREATED)
-    public ThirdPartyDto registerTP(@RequestBody ThirdPartyDto thirdPartyDto){
+    public ThirdPartyDto registerTP(@Valid @RequestBody ThirdPartyDto thirdPartyDto){
         return adminService.registerTP(thirdPartyDto);
     }
 

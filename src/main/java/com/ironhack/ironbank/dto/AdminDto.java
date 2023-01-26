@@ -1,6 +1,8 @@
 package com.ironhack.ironbank.dto;
 
 import com.ironhack.ironbank.model.entities.users.Admin;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,14 +12,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AdminDto {
 
+
+    @NotBlank(message = "Username required.")
     private String username;
 
+    @NotBlank(message = "Password required.")
     private String password;
 
+    @NotBlank(message = "First Name required.")
     private String firstName;
 
+    @NotBlank(message = "Last Name required.")
     private String lastName;
 
+    @NotBlank(message = "Email required.")
+    @Email
     private String email;
 
 

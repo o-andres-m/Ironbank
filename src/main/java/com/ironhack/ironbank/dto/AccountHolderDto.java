@@ -1,8 +1,12 @@
 package com.ironhack.ironbank.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -10,24 +14,34 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class AccountHolderDto {
 
+    @NotBlank(message = "Username required.")
     private String username;
 
+    @NotBlank(message = "Password required.")
     private String password;
 
     private String roles;
 
+    @NotBlank(message = "Nif required.")
     private String nif;
 
+    @NotBlank(message = "First Name required.")
     private String firstName;
 
+    @NotBlank(message = "Last Name required.")
     private String lastName;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
+    @NotBlank(message = "Address required.")
     private String address;
 
+    @Email
     private String email;
 
+    @NotBlank(message = "Phone required.")
     private String phone;
 
 

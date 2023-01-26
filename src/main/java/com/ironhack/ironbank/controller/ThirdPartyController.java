@@ -3,6 +3,7 @@ package com.ironhack.ironbank.controller;
 import com.ironhack.ironbank.dto.ThirdPartyDto;
 import com.ironhack.ironbank.model.entities.AccountMap;
 import com.ironhack.ironbank.service.ThirdPartyService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class ThirdPartyController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public ThirdPartyDto createUser (@RequestBody ThirdPartyDto thirdPartyDto){
+    public ThirdPartyDto createUser (@Valid @RequestBody ThirdPartyDto thirdPartyDto){
         return thirdPartyService.createUser(thirdPartyDto);
     }
 

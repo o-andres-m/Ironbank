@@ -3,6 +3,7 @@ package com.ironhack.ironbank.controller;
 import com.ironhack.ironbank.dto.AccountDto;
 import com.ironhack.ironbank.dto.AccountHolderDto;
 import com.ironhack.ironbank.service.HoldersService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class AccountHolderController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountHolderDto register(@RequestBody AccountHolderDto accountHolderDto){
+    public AccountHolderDto register(@Valid @RequestBody AccountHolderDto accountHolderDto){
         return holdersService.register(accountHolderDto);
     }
 
