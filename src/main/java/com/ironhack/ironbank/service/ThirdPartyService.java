@@ -2,22 +2,26 @@ package com.ironhack.ironbank.service;
 
 import com.ironhack.ironbank.dto.AccountMapDto;
 import com.ironhack.ironbank.dto.ThirdPartyDto;
+import com.ironhack.ironbank.dto.TransactionDto;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.exception.UserNotFoundException;
 import com.ironhack.ironbank.model.defaults.Address;
 import com.ironhack.ironbank.model.entities.AccountMap;
+import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import com.ironhack.ironbank.model.entities.users.User;
 import com.ironhack.ironbank.repository.AccountMapRepository;
 import com.ironhack.ironbank.repository.AccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
 import com.ironhack.ironbank.service.utils.AccountUtils;
+import com.ironhack.ironbank.service.utils.TransactionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +36,8 @@ public class ThirdPartyService {
     private final AccountMapRepository accountMapRepository;
 
     private final AccountRepository accountRepository;
+
+    private final TransactionUtils transactionUtils;
 
 
 
@@ -75,7 +81,6 @@ public class ThirdPartyService {
         return thirdParty;
     }
 
-
     public List<AccountMapDto> allAcountMap() {
         var thirdParty = getThirdParty();
         var listOfAcountMap = accountMapRepository.findAllByThirdParty(thirdParty);
@@ -84,5 +89,21 @@ public class ThirdPartyService {
             listOfAccountMapDto.add(AccountMapDto.fromAccountMap(accountMap));
         }
         return listOfAccountMapDto;
+    }
+
+
+    public TransactionDto chargeService(String company, String account, String secretKey, BigDecimal amount) {
+
+        var accountToCharge = accountRepository.findAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account doesn't exists."));
+        if (accountToCharge.getSecretKey().equals(secretKey)){
+            // TODO : Validar que no quede en negativo + el fraud detection
+            accountToCharge.getBalance().decreaseAmount(amount);
+            accountRepository.save(accountToCharge);
+
+            return TransactionDto.fromTransaction(transactionUtils.registerChargeService(accountToCharge,amount,company));
+        }else {
+            throw new EspecificException("Secret Key invalid.");
+        }
     }
 }

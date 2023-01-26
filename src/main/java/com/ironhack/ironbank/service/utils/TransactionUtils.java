@@ -62,4 +62,13 @@ public class TransactionUtils {
         transaction.setObservations("Payment at "+store);
         transactionRepository.save(transaction);
     }
+
+    public Transaction registerChargeService(Account account, BigDecimal amount, String company){
+        var transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(new Money(amount));
+        transaction.setTransactionType(TransactionType.PAY_SERVICE);
+        transaction.setObservations("Service Debit in "+company);
+        return transactionRepository.save(transaction);
+    }
 }
