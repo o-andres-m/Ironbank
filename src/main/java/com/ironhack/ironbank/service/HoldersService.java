@@ -2,16 +2,15 @@ package com.ironhack.ironbank.service;
 
 import com.ironhack.ironbank.dto.AccountDto;
 import com.ironhack.ironbank.dto.AccountHolderDto;
+import com.ironhack.ironbank.dto.TransactionDto;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.exception.UserNotFoundException;
 import com.ironhack.ironbank.model.defaults.Address;
+import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.model.entities.accounts.*;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.users.User;
-import com.ironhack.ironbank.repository.AccountRepository;
-import com.ironhack.ironbank.repository.CheckingAccountRepository;
-import com.ironhack.ironbank.repository.CreditCardAccountRepository;
-import com.ironhack.ironbank.repository.UserRepository;
+import com.ironhack.ironbank.repository.*;
 import com.ironhack.ironbank.service.utils.AccountUtils;
 import com.ironhack.ironbank.service.utils.TransactionUtils;
 import com.ironhack.ironbank.service.utils.Utils;
@@ -22,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +39,8 @@ public class HoldersService {
     private final CreditCardAccountRepository creditCardAccountRepository;
 
     private final TransactionUtils transactionUtils;
+
+    private final TransactionRepository transactionRepository;
 
 
 
@@ -160,5 +163,42 @@ public class HoldersService {
             throw new EspecificException("You don't have founds.");
         }
         return AccountDto.fromAccount(checkingAccount);
+    }
+
+
+    public List<AccountDto> allAccounts() {
+        User accountHolder = getAccountHolder();
+        var accountList = accountRepository.findAccountByPrimaryOwner_Username(accountHolder.getUsername());
+        var accountListDto = new ArrayList<AccountDto>();
+
+        for(Account account : accountList){
+            accountListDto.add(AccountDto.fromAccount(account));
+        }
+        return accountListDto;
+    }
+
+    public AccountDto viewAccount(String account) {
+        User accountHolder = getAccountHolder();
+        var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account not found."));
+        if(!accountFound.getPrimaryOwner().equals(accountHolder)){
+            throw new EspecificException("Account is not yours!");
+        }
+        return AccountDto.fromAccount(accountFound);
+    }
+
+    public List<TransactionDto> viewTransactions(String account) {
+        User accountHolder = getAccountHolder();
+        var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account not found."));
+        if(!accountFound.getPrimaryOwner().equals(accountHolder)){
+            throw new EspecificException("Account is not yours!");
+        }
+        var transactionList = transactionRepository.findTransactionsByAccount_Number(account);
+        var transacionDtoList = new ArrayList<TransactionDto>();
+        for(Transaction transaction : transactionList){
+            transacionDtoList.add(TransactionDto.fromTransaction(transaction));
+        }
+        return transacionDtoList;
     }
 }

@@ -2,6 +2,8 @@ package com.ironhack.ironbank.controller;
 
 import com.ironhack.ironbank.dto.AccountDto;
 import com.ironhack.ironbank.dto.AccountHolderDto;
+import com.ironhack.ironbank.dto.TransactionDto;
+import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.service.HoldersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/holders")
@@ -61,5 +64,22 @@ public class AccountHolderController {
     public AccountDto withdraw(@RequestParam BigDecimal amount){
         return  holdersService.withdraw(amount);
     }
+
+    //TODO: traer todas las cuentas// traer info cuenta// traer toda la info personal // modificar info
+    @GetMapping("/all")
+    public List<AccountDto> allAccounts(){
+        return holdersService.allAccounts();
+    }
+
+    @GetMapping("/account")
+    public AccountDto viewAccount(@RequestParam String account){
+        return holdersService.viewAccount(account);
+    }
+
+    @GetMapping("/transactions")
+    public List<TransactionDto> viewTransactions(@RequestParam String account){
+        return holdersService.viewTransactions(account);
+    }
+
 
 }
