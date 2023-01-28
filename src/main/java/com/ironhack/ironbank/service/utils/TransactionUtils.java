@@ -30,7 +30,7 @@ public class TransactionUtils {
     public void registerWithdraw(Account account, BigDecimal amount){
         var transaction = new Transaction();
         transaction.setAccount(account);
-        transaction.setAmount(new Money(amount));
+        transaction.setAmount(new Money(amount.negate()));
         transaction.setTransactionType(TransactionType.WITHDRAW);
         transaction.setObservations("Owner Withdraw");
         transactionRepository.save(transaction);
@@ -48,7 +48,7 @@ public class TransactionUtils {
     public void fromCheckingtoSaving(Account account, BigDecimal amount,Account newSavigAccount) {
         var transaction = new Transaction();
         transaction.setAccount(account);
-        transaction.setAmount(new Money(amount));
+        transaction.setAmount(new Money(amount.negate()));
         transaction.setTransactionType(TransactionType.CREATE_SAVING_ACCOUNT);
         transaction.setObservations("Create New Saving Account -> "+newSavigAccount.getNumber());
         transactionRepository.save(transaction);
@@ -66,7 +66,7 @@ public class TransactionUtils {
     public Transaction registerChargeService(Account account, BigDecimal amount, String company){
         var transaction = new Transaction();
         transaction.setAccount(account);
-        transaction.setAmount(new Money(amount));
+        transaction.setAmount(new Money(amount.negate()));
         transaction.setTransactionType(TransactionType.PAY_SERVICE);
         transaction.setObservations("Service Debit in "+company);
         return transactionRepository.save(transaction);

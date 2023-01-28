@@ -3,9 +3,9 @@ package com.ironhack.ironbank.service;
 import com.ironhack.ironbank.dto.AccountDto;
 import com.ironhack.ironbank.dto.AccountHolderDto;
 import com.ironhack.ironbank.dto.TransactionDto;
+import com.ironhack.ironbank.dto.response.AccountHolderDtoResponse;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.exception.UserNotFoundException;
-import com.ironhack.ironbank.model.defaults.Address;
 import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.model.entities.accounts.*;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
@@ -17,7 +17,6 @@ import com.ironhack.ironbank.service.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -44,7 +43,7 @@ public class HoldersService {
 
 
 
-    public AccountHolderDto register(AccountHolderDto accountHolderDto) {
+    public AccountHolderDtoResponse register(AccountHolderDto accountHolderDto) {
 
         var user = accountHolderDto.getUsername();
         accountUtils.verifyUserExists(user);
@@ -53,7 +52,7 @@ public class HoldersService {
             throw new EspecificException("You must have 18 years for register. Please go to the Bank.");
         }else{
             var accountHolder = accountUtils.createAccountHolder(accountHolderDto, user);
-            return AccountHolderDto.fromAccountHolder(userRepository.save(accountHolder));
+            return AccountHolderDtoResponse.fromAccountHolder(userRepository.save(accountHolder));
             }
         }
 
@@ -115,8 +114,7 @@ public class HoldersService {
 
     public AccountDto createCreditAccount() {
         User accountHolder = getAccountHolder();
-        var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
-                orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
+        accountUtils.findCheckingAccountByAccountHolder((AccountHolder) accountHolder);
         var accountCreated = new CreditCardAccount((AccountHolder) accountHolder);
         accountRepository.save(accountCreated);
         return AccountDto.fromAccount(accountCreated);
@@ -194,7 +192,7 @@ public class HoldersService {
         if(!accountFound.getPrimaryOwner().equals(accountHolder)){
             throw new EspecificException("Account is not yours!");
         }
-        var transactionList = transactionRepository.findTransactionsByAccount_Number(account);
+        var transactionList = transactionRepository.findTransactionsByAccount_NumberOrderByDateDesc(account);
         var transacionDtoList = new ArrayList<TransactionDto>();
         for(Transaction transaction : transactionList){
             transacionDtoList.add(TransactionDto.fromTransaction(transaction));

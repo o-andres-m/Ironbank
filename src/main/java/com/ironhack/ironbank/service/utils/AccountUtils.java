@@ -51,6 +51,12 @@ public class AccountUtils {
         if (findUserInDb.isPresent()) throw new EspecificException("Username already exists. Please change username.");
     }
 
+
+    public void findCheckingAccountByAccountHolder(AccountHolder accountHolder) {
+        var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner(accountHolder).
+                orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
+    }
+
     public AccountHolder createAccountHolder(AccountHolderDto accountHolderDto, String user) {
         var accountHolder = new AccountHolder();
         accountHolder.setUsername(user);

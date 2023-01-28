@@ -4,11 +4,10 @@ import com.ironhack.ironbank.dto.AccountMapDto;
 import com.ironhack.ironbank.dto.ThirdPartyDto;
 import com.ironhack.ironbank.dto.TransactionDto;
 import com.ironhack.ironbank.dto.TransferDto;
+import com.ironhack.ironbank.dto.response.ThirdPartyDtoResponse;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.exception.UserNotFoundException;
-import com.ironhack.ironbank.model.defaults.Address;
 import com.ironhack.ironbank.model.entities.AccountMap;
-import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import com.ironhack.ironbank.model.entities.users.User;
 import com.ironhack.ironbank.repository.AccountMapRepository;
@@ -19,7 +18,6 @@ import com.ironhack.ironbank.service.utils.TransactionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -42,7 +40,7 @@ public class ThirdPartyService {
 
 
 
-    public ThirdPartyDto createUser(ThirdPartyDto thirdPartyDto) {
+    public ThirdPartyDtoResponse createUser(ThirdPartyDto thirdPartyDto) {
 
         var user = thirdPartyDto.getUsername();
         accountUtils.verifyUserExists(user);
@@ -50,7 +48,7 @@ public class ThirdPartyService {
         var thirdParty = accountUtils.createThirdParty(thirdPartyDto);
         //When thirdparty register himself, need to activate account.
         thirdParty.setIsAccountNonLocked(false);
-        return ThirdPartyDto.fromThirdParty(userRepository.save(thirdParty));
+        return ThirdPartyDtoResponse.fromThirdParty(userRepository.save(thirdParty));
     }
 
 

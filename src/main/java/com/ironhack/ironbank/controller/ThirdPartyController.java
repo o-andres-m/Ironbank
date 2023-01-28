@@ -4,6 +4,7 @@ import com.ironhack.ironbank.dto.AccountMapDto;
 import com.ironhack.ironbank.dto.ThirdPartyDto;
 import com.ironhack.ironbank.dto.TransactionDto;
 import com.ironhack.ironbank.dto.TransferDto;
+import com.ironhack.ironbank.dto.response.ThirdPartyDtoResponse;
 import com.ironhack.ironbank.service.ThirdPartyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class ThirdPartyController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public ThirdPartyDto createUser (@Valid @RequestBody ThirdPartyDto thirdPartyDto){
+    public ThirdPartyDtoResponse createUser (@Valid @RequestBody ThirdPartyDto thirdPartyDto){
         return thirdPartyService.createUser(thirdPartyDto);
     }
 

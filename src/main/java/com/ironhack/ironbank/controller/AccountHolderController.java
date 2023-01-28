@@ -3,7 +3,7 @@ package com.ironhack.ironbank.controller;
 import com.ironhack.ironbank.dto.AccountDto;
 import com.ironhack.ironbank.dto.AccountHolderDto;
 import com.ironhack.ironbank.dto.TransactionDto;
-import com.ironhack.ironbank.model.entities.accounts.Account;
+import com.ironhack.ironbank.dto.response.AccountHolderDtoResponse;
 import com.ironhack.ironbank.service.HoldersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class AccountHolderController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountHolderDto register(@Valid @RequestBody AccountHolderDto accountHolderDto){
+    public AccountHolderDtoResponse register(@Valid @RequestBody AccountHolderDto accountHolderDto){
         return holdersService.register(accountHolderDto);
     }
 

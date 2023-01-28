@@ -39,17 +39,11 @@ public class AccountDto {
         accountDto.setSecretKey(account.getSecretKey());
         accountDto.setBalance(account.getBalance());
         accountDto.setPrimaryOwner(AccountHolderDto.fromAccountHolder(account.getPrimaryOwner()));
-        //accountDto.setSecondaryOwner(AccountHolderDto.fromAccountHolder(account.getSecondaryOwner()));
+        accountDto.setSecondaryOwner(AccountHolderDto.fromAccountHolder(account.getSecondaryOwner()));
         accountDto.setStatus(account.getStatus());
         accountDto.setTransactionList(account.getTransactionList());
         accountDto.setPenaltyFee(account.getPenaltyFee());
 
         return accountDto;
-
-
-
-
     }
-
-
 }
