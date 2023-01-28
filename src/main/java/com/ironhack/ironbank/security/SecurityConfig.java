@@ -42,7 +42,7 @@ public class SecurityConfig {
 
                 // Public ENDPOINTS (any method)
                 .requestMatchers("/holders/register", "/thirdparty/register").permitAll()
-                .requestMatchers("/thirdparty/chargeservice").permitAll()
+                .requestMatchers("/thirdparty/chargeservice","/thirdparty/transfer" ).permitAll()
 
                 .requestMatchers(HttpMethod.POST,"/holders/create/accounts/**").hasRole("ACCOUNTHOLDER")
 

@@ -3,6 +3,7 @@ package com.ironhack.ironbank.service;
 import com.ironhack.ironbank.dto.AccountMapDto;
 import com.ironhack.ironbank.dto.ThirdPartyDto;
 import com.ironhack.ironbank.dto.TransactionDto;
+import com.ironhack.ironbank.dto.TransferDto;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.exception.UserNotFoundException;
 import com.ironhack.ironbank.model.defaults.Address;
@@ -105,5 +106,14 @@ public class ThirdPartyService {
         }else {
             throw new EspecificException("Secret Key invalid.");
         }
+    }
+
+    public TransactionDto transferToAccount(TransferDto transferDto, String bankName, String name) {
+
+        var accountToCredit = accountRepository.findAccountByNumber(transferDto.getToAccount()).orElseThrow(
+                ()-> new EspecificException("Account doesn't exists."));
+        accountToCredit.getBalance().increaseAmount(transferDto.getAmount());
+        accountRepository.save(accountToCredit);
+        return TransactionDto.fromTransaction(transactionUtils.registerTransferFromThirdParty(accountToCredit,transferDto.getAmount(),bankName,name));
     }
 }

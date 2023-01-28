@@ -3,7 +3,7 @@ package com.ironhack.ironbank.controller;
 import com.ironhack.ironbank.dto.AccountMapDto;
 import com.ironhack.ironbank.dto.ThirdPartyDto;
 import com.ironhack.ironbank.dto.TransactionDto;
-import com.ironhack.ironbank.model.entities.Transaction;
+import com.ironhack.ironbank.dto.TransferDto;
 import com.ironhack.ironbank.service.ThirdPartyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,5 +48,12 @@ public class ThirdPartyController {
                                         @RequestParam BigDecimal amount
                                         ){
         return thirdPartyService.chargeService(company,account,secretKey,amount);
+    }
+
+    @PostMapping("/transfer")
+    public TransactionDto transferToAccount(@RequestBody TransferDto transferDto,
+                                            @RequestHeader(name = "bank") String bankName,
+                                            @RequestHeader (name = "thirdClient") String name){
+        return thirdPartyService.transferToAccount(transferDto, bankName, name);
     }
 }

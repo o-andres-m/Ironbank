@@ -71,4 +71,13 @@ public class TransactionUtils {
         transaction.setObservations("Service Debit in "+company);
         return transactionRepository.save(transaction);
     }
+
+    public Transaction registerTransferFromThirdParty(Account accountToCredit,BigDecimal amount, String bankName, String name) {
+        var transaction = new Transaction();
+        transaction.setAccount(accountToCredit);
+        transaction.setAmount(new Money(amount));
+        transaction.setTransactionType(TransactionType.CREDIT_FROM_TRANSFER);
+        transaction.setObservations("Transfer from "+name+" (Bank: "+bankName+")");
+        return transactionRepository.save(transaction);
+    }
 }
