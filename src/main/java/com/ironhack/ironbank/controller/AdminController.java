@@ -1,12 +1,13 @@
 package com.ironhack.ironbank.controller;
 
-import com.ironhack.ironbank.dto.AccountDto;
-import com.ironhack.ironbank.dto.AccountHolderDto;
-import com.ironhack.ironbank.dto.AdminDto;
-import com.ironhack.ironbank.dto.ThirdPartyDto;
-import com.ironhack.ironbank.dto.response.AccountHolderDtoResponse;
-import com.ironhack.ironbank.dto.response.AdminDtoResponse;
-import com.ironhack.ironbank.dto.response.ThirdPartyDtoResponse;
+import com.ironhack.ironbank.dto.account.AccountAdminViewDto;
+import com.ironhack.ironbank.dto.account.AccountDto;
+import com.ironhack.ironbank.dto.users.AccountHolderDto;
+import com.ironhack.ironbank.dto.users.AdminDto;
+import com.ironhack.ironbank.dto.users.ThirdPartyDto;
+import com.ironhack.ironbank.dto.users.AccountHolderDtoResponse;
+import com.ironhack.ironbank.dto.users.AdminDtoResponse;
+import com.ironhack.ironbank.dto.users.ThirdPartyDtoResponse;
 import com.ironhack.ironbank.service.AdminService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -117,5 +118,11 @@ public class AdminController {
     public List<AccountDto> allAccounts(@RequestParam Optional<String> username){
         return adminService.allAccounts(username);
     }
+
+    @GetMapping("/accounts/{account}")
+    public AccountAdminViewDto viewAccount(@PathVariable String account){
+        return adminService.viewAccount(account);
+    }
+
 
 }

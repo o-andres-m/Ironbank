@@ -1,10 +1,10 @@
 package com.ironhack.ironbank.controller;
 
-import com.ironhack.ironbank.dto.AccountMapDto;
-import com.ironhack.ironbank.dto.ThirdPartyDto;
-import com.ironhack.ironbank.dto.TransactionDto;
-import com.ironhack.ironbank.dto.TransferDto;
-import com.ironhack.ironbank.dto.response.ThirdPartyDtoResponse;
+import com.ironhack.ironbank.dto.account.AccountMapDto;
+import com.ironhack.ironbank.dto.users.ThirdPartyDto;
+import com.ironhack.ironbank.dto.transaction.TransactionDto;
+import com.ironhack.ironbank.dto.transaction.TransferDto;
+import com.ironhack.ironbank.dto.users.ThirdPartyDtoResponse;
 import com.ironhack.ironbank.service.ThirdPartyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

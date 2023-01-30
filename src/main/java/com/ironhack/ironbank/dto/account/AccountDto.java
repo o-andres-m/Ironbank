@@ -1,7 +1,7 @@
-package com.ironhack.ironbank.dto;
+package com.ironhack.ironbank.dto.account;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ironhack.ironbank.dto.response.AccountHolderDtoResponse;
+import com.ironhack.ironbank.dto.users.AccountHolderDtoResponse;
 import com.ironhack.ironbank.model.defaults.Money;
 import com.ironhack.ironbank.model.defaults.PenaltyFee;
 import com.ironhack.ironbank.model.entities.accounts.Account;
@@ -31,6 +31,7 @@ public class AccountDto {
     @JsonIgnore
     private List<Transaction> transactionList;
 
+    @JsonIgnore
     private PenaltyFee penaltyFee;
 
     public static AccountDto fromAccount(Account account){

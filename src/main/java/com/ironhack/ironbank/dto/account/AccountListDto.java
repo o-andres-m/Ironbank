@@ -1,10 +1,6 @@
-package com.ironhack.ironbank.dto.info;
+package com.ironhack.ironbank.dto.account;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ironhack.ironbank.dto.response.AccountHolderDtoResponse;
 import com.ironhack.ironbank.model.defaults.Money;
-import com.ironhack.ironbank.model.defaults.PenaltyFee;
-import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.enums.Status;
 import lombok.Data;

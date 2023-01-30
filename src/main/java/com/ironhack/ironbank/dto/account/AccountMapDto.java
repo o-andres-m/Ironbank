@@ -1,4 +1,4 @@
-package com.ironhack.ironbank.dto;
+package com.ironhack.ironbank.dto.account;
 
 import com.ironhack.ironbank.model.entities.AccountMap;
 import lombok.Data;

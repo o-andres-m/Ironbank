@@ -1,9 +1,6 @@
-package com.ironhack.ironbank.dto.response;
+package com.ironhack.ironbank.dto.users;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ironhack.ironbank.model.entities.users.Admin;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

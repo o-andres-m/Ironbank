@@ -1,4 +1,4 @@
-package com.ironhack.ironbank.dto;
+package com.ironhack.ironbank.dto.transaction;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

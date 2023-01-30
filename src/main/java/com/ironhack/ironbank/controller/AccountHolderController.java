@@ -1,10 +1,10 @@
 package com.ironhack.ironbank.controller;
 
-import com.ironhack.ironbank.dto.AccountDto;
-import com.ironhack.ironbank.dto.AccountHolderDto;
-import com.ironhack.ironbank.dto.TransactionDto;
+import com.ironhack.ironbank.dto.account.AccountDto;
+import com.ironhack.ironbank.dto.users.AccountHolderDto;
+import com.ironhack.ironbank.dto.transaction.TransactionDto;
 import com.ironhack.ironbank.dto.info.AccountHolderInfoDto;
-import com.ironhack.ironbank.dto.response.AccountHolderDtoResponse;
+import com.ironhack.ironbank.dto.users.AccountHolderDtoResponse;
 import com.ironhack.ironbank.service.HoldersService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 

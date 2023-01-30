@@ -1,13 +1,8 @@
-package com.ironhack.ironbank.dto.response;
+package com.ironhack.ironbank.dto.users;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 

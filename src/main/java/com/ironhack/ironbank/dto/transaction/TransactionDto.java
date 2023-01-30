@@ -1,13 +1,9 @@
-package com.ironhack.ironbank.dto;
+package com.ironhack.ironbank.dto.transaction;
 
-import com.ironhack.ironbank.model.defaults.Money;
 import com.ironhack.ironbank.model.entities.Transaction;
-import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.enums.TransactionType;
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;

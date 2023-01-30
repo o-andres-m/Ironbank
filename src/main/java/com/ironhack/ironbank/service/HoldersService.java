@@ -1,10 +1,10 @@
 package com.ironhack.ironbank.service;
 
-import com.ironhack.ironbank.dto.AccountDto;
-import com.ironhack.ironbank.dto.AccountHolderDto;
-import com.ironhack.ironbank.dto.TransactionDto;
+import com.ironhack.ironbank.dto.account.AccountDto;
+import com.ironhack.ironbank.dto.users.AccountHolderDto;
+import com.ironhack.ironbank.dto.transaction.TransactionDto;
 import com.ironhack.ironbank.dto.info.AccountHolderInfoDto;
-import com.ironhack.ironbank.dto.response.AccountHolderDtoResponse;
+import com.ironhack.ironbank.dto.users.AccountHolderDtoResponse;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.exception.UserNotFoundException;
 import com.ironhack.ironbank.model.entities.Transaction;

@@ -1,6 +1,6 @@
 package com.ironhack.ironbank.dto.info;
 
-import com.ironhack.ironbank.model.entities.accounts.Account;
+import com.ironhack.ironbank.dto.account.AccountListDto;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,22 +1,18 @@
 package com.ironhack.ironbank.service.utils;
 
-import com.ironhack.ironbank.dto.AccountHolderDto;
-import com.ironhack.ironbank.dto.AdminDto;
-import com.ironhack.ironbank.dto.ThirdPartyDto;
+import com.ironhack.ironbank.dto.users.AccountHolderDto;
+import com.ironhack.ironbank.dto.users.AdminDto;
+import com.ironhack.ironbank.dto.users.ThirdPartyDto;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.model.defaults.Address;
 import com.ironhack.ironbank.model.entities.accounts.Account;
-import com.ironhack.ironbank.model.entities.accounts.CheckingAccount;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.users.Admin;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
-import com.ironhack.ironbank.model.entities.users.User;
-import com.ironhack.ironbank.repository.AccountRepository;
 import com.ironhack.ironbank.repository.CheckingAccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
 import com.ironhack.ironbank.setting.Settings;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Check;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

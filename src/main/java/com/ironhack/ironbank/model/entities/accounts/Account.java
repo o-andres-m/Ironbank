@@ -33,10 +33,6 @@ public abstract class Account {
     private String secretKey;
 
     @Embedded
-    //@AttributeOverrides({
-      //      @AttributeOverride(name = "currency", column = @Column(name = "first_name")),
-        //    @AttributeOverride(name = "amount", column = @Column(name = "last_name"))
-   // })
     private Money balance;
 
     @ManyToOne
@@ -47,6 +43,8 @@ public abstract class Account {
     @JoinColumn(name = "secondaryOwner_id")
     private AccountHolder secondaryOwner;
 
+    //TODO: Pasarlo a ENUM STRING
+    //@Enumerated(EnumType.STRING)
     private Status status;
 
     @OneToMany (mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)

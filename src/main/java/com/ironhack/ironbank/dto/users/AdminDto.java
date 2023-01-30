@@ -1,4 +1,4 @@
-package com.ironhack.ironbank.dto;
+package com.ironhack.ironbank.dto.users;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ironhack.ironbank.model.entities.users.Admin;

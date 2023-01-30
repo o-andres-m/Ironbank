@@ -1,6 +1,6 @@
 package com.ironhack.ironbank.model.entities.users;
 
-import com.ironhack.ironbank.dto.AccountHolderDto;
+import com.ironhack.ironbank.dto.users.AccountHolderDto;
 import com.ironhack.ironbank.model.defaults.Address;
 import com.ironhack.ironbank.model.entities.accounts.Account;
 import jakarta.persistence.CascadeType;

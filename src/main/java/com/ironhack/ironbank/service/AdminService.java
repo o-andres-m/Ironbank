@@ -1,12 +1,13 @@
 package com.ironhack.ironbank.service;
 
-import com.ironhack.ironbank.dto.AccountDto;
-import com.ironhack.ironbank.dto.AccountHolderDto;
-import com.ironhack.ironbank.dto.AdminDto;
-import com.ironhack.ironbank.dto.ThirdPartyDto;
-import com.ironhack.ironbank.dto.response.AccountHolderDtoResponse;
-import com.ironhack.ironbank.dto.response.AdminDtoResponse;
-import com.ironhack.ironbank.dto.response.ThirdPartyDtoResponse;
+import com.ironhack.ironbank.dto.account.AccountAdminViewDto;
+import com.ironhack.ironbank.dto.account.AccountDto;
+import com.ironhack.ironbank.dto.users.AccountHolderDto;
+import com.ironhack.ironbank.dto.users.AdminDto;
+import com.ironhack.ironbank.dto.users.ThirdPartyDto;
+import com.ironhack.ironbank.dto.users.AccountHolderDtoResponse;
+import com.ironhack.ironbank.dto.users.AdminDtoResponse;
+import com.ironhack.ironbank.dto.users.ThirdPartyDtoResponse;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
@@ -172,6 +173,12 @@ public class AdminService {
             accountListDto.add(AccountDto.fromAccount(account));
         }
         return accountListDto;
+    }
+
+    public AccountAdminViewDto viewAccount(String account) {
+        var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account not found."));
+        return AccountAdminViewDto.fromAccount(accountFound);
     }
 }
 
