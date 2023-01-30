@@ -14,6 +14,7 @@ import com.ironhack.ironbank.repository.AccountMapRepository;
 import com.ironhack.ironbank.repository.AccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
 import com.ironhack.ironbank.service.utils.AccountUtils;
+import com.ironhack.ironbank.service.utils.FraudDetectionUtils;
 import com.ironhack.ironbank.service.utils.TransactionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -37,6 +38,8 @@ public class ThirdPartyService {
     private final AccountRepository accountRepository;
 
     private final TransactionUtils transactionUtils;
+
+    private final FraudDetectionUtils fraudDetectionUtils;
 
 
 
@@ -97,6 +100,8 @@ public class ThirdPartyService {
                 ()-> new EspecificException("Account doesn't exists."));
         if (accountToCharge.getSecretKey().equals(secretKey)){
             // TODO : Validar que no quede en negativo + el fraud detection
+            accountUtils.cehckFinalBalance(accountToCharge,amount);
+            // TODO fraudDetectionUtils
             accountToCharge.getBalance().decreaseAmount(amount);
             accountRepository.save(accountToCharge);
 

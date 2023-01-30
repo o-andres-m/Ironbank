@@ -1,6 +1,7 @@
 package com.ironhack.ironbank.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ironhack.ironbank.dto.response.AccountHolderDtoResponse;
 import com.ironhack.ironbank.model.defaults.Money;
 import com.ironhack.ironbank.model.defaults.PenaltyFee;
 import com.ironhack.ironbank.model.entities.accounts.Account;
@@ -21,9 +22,9 @@ public class AccountDto {
 
     private Money balance;
 
-    private AccountHolderDto primaryOwner;
+    private AccountHolderDtoResponse primaryOwner;
 
-    private AccountHolderDto secondaryOwner;
+    private AccountHolderDtoResponse secondaryOwner;
 
     private Status status;
 
@@ -38,8 +39,8 @@ public class AccountDto {
         accountDto.setNumber(account.getNumber());
         accountDto.setSecretKey(account.getSecretKey());
         accountDto.setBalance(account.getBalance());
-        accountDto.setPrimaryOwner(AccountHolderDto.fromAccountHolder(account.getPrimaryOwner()));
-        accountDto.setSecondaryOwner(AccountHolderDto.fromAccountHolder(account.getSecondaryOwner()));
+        accountDto.setPrimaryOwner(AccountHolderDtoResponse.fromAccountHolder(account.getPrimaryOwner()));
+        if(account.getSecondaryOwner() != null)accountDto.setSecondaryOwner(AccountHolderDtoResponse.fromAccountHolder(account.getSecondaryOwner()));
         accountDto.setStatus(account.getStatus());
         accountDto.setTransactionList(account.getTransactionList());
         accountDto.setPenaltyFee(account.getPenaltyFee());

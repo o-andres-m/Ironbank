@@ -56,8 +56,6 @@ public class HoldersService {
             }
         }
 
-
-
     /*
     Method to get the account Holder
      */
@@ -126,8 +124,8 @@ public class HoldersService {
         var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
         checkingAccount.getBalance().increaseAmount(amount);
-        checkingAccountRepository.save(checkingAccount);
         transactionUtils.registerDeposit(checkingAccount,amount);
+        accountRepository.save(checkingAccount);
         return AccountDto.fromAccount(checkingAccount);
     }
 

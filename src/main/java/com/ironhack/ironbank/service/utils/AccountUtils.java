@@ -20,6 +20,7 @@ import org.hibernate.annotations.Check;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -93,7 +94,9 @@ public class AccountUtils {
     }
 
 
-
-
-
+    public void cehckFinalBalance(Account accountToCharge, BigDecimal amount) {
+        if (accountToCharge.getBalance().getAmount().subtract(amount).signum()<0){
+            throw new EspecificException("Error. Account doesn't have enough founds.");
+        }
+    }
 }
