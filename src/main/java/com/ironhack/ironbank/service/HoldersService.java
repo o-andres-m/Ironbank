@@ -3,6 +3,7 @@ package com.ironhack.ironbank.service;
 import com.ironhack.ironbank.dto.AccountDto;
 import com.ironhack.ironbank.dto.AccountHolderDto;
 import com.ironhack.ironbank.dto.TransactionDto;
+import com.ironhack.ironbank.dto.info.AccountHolderInfoDto;
 import com.ironhack.ironbank.dto.response.AccountHolderDtoResponse;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.exception.UserNotFoundException;
@@ -17,11 +18,13 @@ import com.ironhack.ironbank.service.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +43,8 @@ public class HoldersService {
     private final TransactionUtils transactionUtils;
 
     private final TransactionRepository transactionRepository;
+
+    private final PasswordEncoder passwordEncoder;
 
 
 
@@ -197,4 +202,24 @@ public class HoldersService {
         }
         return transacionDtoList;
     }
+
+    public AccountHolderInfoDto viewPersonalInfo() {
+        User accountHolder = getAccountHolder();
+        return AccountHolderInfoDto.fromAccountHolder((AccountHolder) userRepository.findByUsername(accountHolder.getUsername()).get());
+    }
+
+    public AccountHolderDtoResponse update(Optional<String> username, Optional<String> password, Optional<String> address, Optional<String> phone, Optional<String> email) {
+        username.ifPresent(accountUtils::verifyUserExists);
+        var accountHolder = (AccountHolder) getAccountHolder();
+        username.ifPresent(accountHolder::setUsername);
+        password.ifPresent(s -> accountHolder.setPassword(passwordEncoder.encode(s)));
+        var accountHolderAddress = accountHolder.getAddress();
+        address.ifPresent(accountHolderAddress::setAddress);
+        phone.ifPresent(accountHolderAddress::setPhone);
+        email.ifPresent(accountHolderAddress::setEmail);
+        accountHolder.setAddress(accountHolderAddress);
+        return AccountHolderDtoResponse.fromAccountHolder(userRepository.save(accountHolder));
+    }
+
+
 }

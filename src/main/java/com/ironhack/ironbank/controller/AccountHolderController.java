@@ -3,15 +3,19 @@ package com.ironhack.ironbank.controller;
 import com.ironhack.ironbank.dto.AccountDto;
 import com.ironhack.ironbank.dto.AccountHolderDto;
 import com.ironhack.ironbank.dto.TransactionDto;
+import com.ironhack.ironbank.dto.info.AccountHolderInfoDto;
 import com.ironhack.ironbank.dto.response.AccountHolderDtoResponse;
 import com.ironhack.ironbank.service.HoldersService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/holders")
@@ -65,7 +69,6 @@ public class AccountHolderController {
         return  holdersService.withdraw(amount);
     }
 
-    //TODO: traer todas las cuentas// traer info cuenta// traer toda la info personal // modificar info
     @GetMapping("/all")
     public List<AccountDto> allAccounts(){
         return holdersService.allAccounts();
@@ -76,10 +79,28 @@ public class AccountHolderController {
         return holdersService.viewAccount(account);
     }
 
+    //TODO: ponerle que filtre por fecha
     @GetMapping("/transactions")
     public List<TransactionDto> viewTransactions(@RequestParam String account){
         return holdersService.viewTransactions(account);
     }
+
+    @GetMapping("/info")
+    public AccountHolderInfoDto viewPersonalInfo(){
+        return holdersService.viewPersonalInfo();
+    }
+
+    @PatchMapping("/update")
+    public AccountHolderDtoResponse updateAH(@RequestParam Optional<String> username,
+                                             @RequestParam Optional<String> password,
+                                             @RequestParam Optional<String> address,
+                                             @RequestParam Optional<String> phone,
+                                             @Email @RequestParam Optional<String> email
+                                            ){
+        return holdersService.update(username,password, address, phone, email);
+    }
+
+
 
 
 }
