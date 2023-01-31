@@ -220,12 +220,14 @@ public class AdminService {
     public String activateUser(Long id) {
         User foundUser = accountUtils.getUserById(id);
         foundUser.setIsAccountNonLocked(true);
+        userRepository.save(foundUser);
         return "User id: "+id+", username: "+foundUser.getUsername()+", is now ACTIVATED";
     }
 
     public String desactivateUser(Long id) {
         User foundUser = accountUtils.getUserById(id);
         foundUser.setIsAccountNonLocked(false);
+        userRepository.save(foundUser);
         return "User id: "+id+", username: "+foundUser.getUsername()+", is now DESACTIVATED";
     }
 }
