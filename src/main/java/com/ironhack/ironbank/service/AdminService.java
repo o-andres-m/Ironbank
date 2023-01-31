@@ -10,6 +10,9 @@ import com.ironhack.ironbank.dto.users.AdminDtoResponse;
 import com.ironhack.ironbank.dto.users.ThirdPartyDtoResponse;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.model.entities.accounts.Account;
+import com.ironhack.ironbank.model.entities.accounts.CheckingAccount;
+import com.ironhack.ironbank.model.entities.accounts.CreditCardAccount;
+import com.ironhack.ironbank.model.entities.accounts.SavingAccount;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.users.Admin;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
@@ -20,6 +23,7 @@ import com.ironhack.ironbank.service.utils.AccountUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +45,10 @@ public class AdminService {
      */
     public AccountHolderDtoResponse registerAH(AccountHolderDto accountHolderDto) {
         var user = accountHolderDto.getUsername();
-        accountUtils.verifyUserExists(user);
+        accountUtils.verifyUserExists(accountHolderDto.getUsername());
+        accountUtils.verifyNifExists(accountHolderDto.getNif());
 
-        var accountHolder = accountUtils.createAccountHolder(accountHolderDto, user);
+        var accountHolder = accountUtils.createAccountHolder(accountHolderDto);
         return AccountHolderDtoResponse.fromAccountHolder(userRepository.save(accountHolder));
     }
 
@@ -99,7 +104,7 @@ public class AdminService {
      */
     public AccountHolderDtoResponse updateAH(Long id, Optional<String> username, Optional<String> firstName, Optional<String> lastName, Optional<String> nif, Optional<String> phone, Optional<String> email, Optional<LocalDate> dateOfBirth, Optional<String> address) {
 
-        var foundUser = userRepository.findById(id).orElseThrow(()-> new EspecificException("User with ID "+id+" not found."));
+        User foundUser = accountUtils.getUserById(id);
         username.ifPresent(accountUtils::verifyUserExists);
 
         if(foundUser.getRoles().equals("ROLE_ACCOUNTHOLDER")) {
@@ -121,7 +126,7 @@ public class AdminService {
 
     public ThirdPartyDtoResponse updateTP(Long id, Optional<String> username, Optional<String> companyName, Optional<String> nif, Optional<String> phone, Optional<String> email, Optional<String> address) {
 
-        var foundUser = userRepository.findById(id).orElseThrow(()-> new EspecificException("User with ID "+id+" not found."));
+        User foundUser = accountUtils.getUserById(id);
         username.ifPresent(accountUtils::verifyUserExists);
 
         if(foundUser.getRoles().equals("ROLE_TIRDPARTY")) {
@@ -141,7 +146,7 @@ public class AdminService {
 
     public AdminDtoResponse updateAdmin(Long id, Optional<String> username, Optional<String> firstName, Optional<String> lastName, Optional<String> email) {
 
-        var foundUser = userRepository.findById(id).orElseThrow(()-> new EspecificException("User with ID "+id+" not found."));
+        User foundUser = accountUtils.getUserById(id);
         username.ifPresent(accountUtils::verifyUserExists);
 
         if(foundUser.getRoles().equals("ROLE_ADMIN")) {
@@ -156,6 +161,8 @@ public class AdminService {
             throw new EspecificException("ID "+id+" is not Admin");
         }
     }
+
+
 
     /**
      * Accounts Methods
@@ -179,6 +186,35 @@ public class AdminService {
         var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
                 ()-> new EspecificException("Account not found."));
         return AccountAdminViewDto.fromAccount(accountFound);
+    }
+
+    public AccountAdminViewDto updateAccount(String account, Optional<Long> secondaryOwnerId, Optional<BigDecimal> minimumBalance, Optional<BigDecimal> creditLimit, Optional<Double> interests) {
+        var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account not found."));
+        if (secondaryOwnerId.isPresent() && secondaryOwnerId.get() == 0L){
+            accountFound.setSecondaryOwner(null);
+        }else {
+            secondaryOwnerId.ifPresent(aLong -> accountFound.setSecondaryOwner((AccountHolder) userRepository.findById(aLong).orElseThrow(
+                    () -> new EspecificException("Secondary Owner Id must be an Id of User List"))));
+        }
+        if (minimumBalance.isPresent()) {
+            if(accountFound instanceof CheckingAccount){
+                ((CheckingAccount) accountFound).setMinimumBalance(minimumBalance.get());
+            }
+            if(accountFound instanceof SavingAccount){
+                ((SavingAccount) accountFound).setMinimumBalance(minimumBalance.get());
+            }
+        }
+        creditLimit.ifPresent(bigDecimal -> ((CreditCardAccount) accountFound).setCreditLimit(bigDecimal));
+        if (interests.isPresent()) {
+            if(accountFound instanceof CreditCardAccount){
+                ((CreditCardAccount) accountFound).setInterests(interests.get());
+            }
+            if(accountFound instanceof SavingAccount){
+                ((SavingAccount) accountFound).setInterests(interests.get());
+            }
+        }
+        return AccountAdminViewDto.fromAccount(accountRepository.save(accountFound));
     }
 }
 

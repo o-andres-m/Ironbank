@@ -46,17 +46,19 @@ public class HoldersService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final AccountHolderRepository accountHolderRepository;
+
 
 
     public AccountHolderDtoResponse register(AccountHolderDto accountHolderDto) {
 
-        var user = accountHolderDto.getUsername();
-        accountUtils.verifyUserExists(user);
+        accountUtils.verifyUserExists(accountHolderDto.getUsername());
+        accountUtils.verifyNifExists(accountHolderDto.getNif());
 
         if (Utils.calculateAge(accountHolderDto.getDateOfBirth())<18) {
             throw new EspecificException("You must have 18 years for register. Please go to the Bank.");
         }else{
-            var accountHolder = accountUtils.createAccountHolder(accountHolderDto, user);
+            var accountHolder = accountUtils.createAccountHolder(accountHolderDto);
             return AccountHolderDtoResponse.fromAccountHolder(userRepository.save(accountHolder));
             }
         }
@@ -180,21 +182,15 @@ public class HoldersService {
 
     public AccountDto viewAccount(String account) {
         User accountHolder = getAccountHolder();
-        var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
-                ()-> new EspecificException("Account not found."));
-        if(!accountFound.getPrimaryOwner().equals(accountHolder)){
-            throw new EspecificException("Account is not yours!");
-        }
+        Account accountFound = accountUtils.getAndVerifyAccount(account, accountHolder);
         return AccountDto.fromAccount(accountFound);
     }
 
+
+
     public List<TransactionDto> viewTransactions(String account) {
         User accountHolder = getAccountHolder();
-        var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
-                ()-> new EspecificException("Account not found."));
-        if(!accountFound.getPrimaryOwner().equals(accountHolder)){
-            throw new EspecificException("Account is not yours!");
-        }
+        accountUtils.getAndVerifyAccount(account, accountHolder);
         var transactionList = transactionRepository.findTransactionsByAccount_NumberOrderByDateDesc(account);
         var transacionDtoList = new ArrayList<TransactionDto>();
         for(Transaction transaction : transactionList){
@@ -222,4 +218,25 @@ public class HoldersService {
     }
 
 
+    public AccountDto setSecondaryOwner(String account, String secondaryOwnerNif) {
+        User accountHolder = getAccountHolder();
+        var accountToUpdate= accountUtils.getAndVerifyAccount(account, accountHolder);
+        if (secondaryOwnerNif.equals(0)){
+            accountToUpdate.setSecondaryOwner(null);
+        }else {
+            var secondaryOwner = accountUtils.getUserByNif(secondaryOwnerNif);
+                accountToUpdate.setSecondaryOwner(secondaryOwner);
+        }
+        return AccountDto.fromAccount(accountRepository.save(accountToUpdate));
+    }
+
+    public String forgotPassword(String nif, String email) {
+        var accountHolder = accountHolderRepository.findAccountHolderByNif(nif).orElseThrow(
+                ()-> new EspecificException("Nif not registered."));
+        if(accountHolder.getAddress().getEmail().equals(email)){
+            return "An email has been sent to "+email+", please follow instructions to restore your password.";
+        }else{
+            return "Nif and Email doesn't match, please go to the Bank to reset your password.";
+        }
+    }
 }

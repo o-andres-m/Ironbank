@@ -12,9 +12,11 @@ import com.ironhack.ironbank.service.AdminService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.PackagePrivate;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -122,6 +124,16 @@ public class AdminController {
     @GetMapping("/accounts/{account}")
     public AccountAdminViewDto viewAccount(@PathVariable String account){
         return adminService.viewAccount(account);
+    }
+
+    @PatchMapping("/accounts/{account}")
+    public AccountAdminViewDto updateAccount(@PathVariable String account,
+                                             @RequestParam Optional<Long> secondaryOwnerId,
+                                             @RequestParam Optional<BigDecimal> minimumBalance,
+                                             @RequestParam Optional<BigDecimal> creditLimit,
+                                             @RequestParam Optional<Double> interests
+                                             ){
+        return adminService.updateAccount(account,secondaryOwnerId,minimumBalance,creditLimit,interests);
     }
 
 

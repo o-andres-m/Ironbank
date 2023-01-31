@@ -29,6 +29,12 @@ public class AccountHolderController {
         return holdersService.register(accountHolderDto);
     }
 
+    @PostMapping("/forgotpassword")
+    public String forgotPassword(@RequestParam String nif,
+                                 @RequestParam String email){
+        return holdersService.forgotPassword(nif, email);
+    }
+
 
     @PostMapping("/create/checking")
     @ResponseStatus(HttpStatus.CREATED)
@@ -90,13 +96,19 @@ public class AccountHolderController {
     }
 
     @PatchMapping("/update")
-    public AccountHolderDtoResponse updateAH(@RequestParam Optional<String> username,
+    public AccountHolderDtoResponse updateInfo(@RequestParam Optional<String> username,
                                              @RequestParam Optional<String> password,
                                              @RequestParam Optional<String> address,
                                              @RequestParam Optional<String> phone,
                                              @Email @RequestParam Optional<String> email
                                             ){
         return holdersService.update(username,password, address, phone, email);
+    }
+
+    @PutMapping("/setSecondaryOwner/{account}")
+    public AccountDto setSecondaryOwner(@PathVariable String account,
+                                        @RequestParam String secondaryOwnerNif){
+        return holdersService.setSecondaryOwner(account, secondaryOwnerNif);
     }
 
 

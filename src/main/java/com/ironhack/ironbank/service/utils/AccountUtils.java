@@ -9,6 +9,9 @@ import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.users.Admin;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
+import com.ironhack.ironbank.model.entities.users.User;
+import com.ironhack.ironbank.repository.AccountHolderRepository;
+import com.ironhack.ironbank.repository.AccountRepository;
 import com.ironhack.ironbank.repository.CheckingAccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
 import com.ironhack.ironbank.setting.Settings;
@@ -30,6 +33,10 @@ public class AccountUtils {
 
     private final UserRepository userRepository;
 
+    private final AccountRepository accountRepository;
+
+    private final AccountHolderRepository accountHolderRepository;
+
 
     /**
      * Return automatic Account Number Generated.
@@ -48,15 +55,20 @@ public class AccountUtils {
         if (findUserInDb.isPresent()) throw new EspecificException("Username already exists. Please change username.");
     }
 
+    public void verifyNifExists(String user) {
+        var findUserInDb = accountHolderRepository.findAccountHolderByNif(user);
+        if (findUserInDb.isPresent()) throw new EspecificException("Nif is registered.");
+    }
+
 
     public void findCheckingAccountByAccountHolder(AccountHolder accountHolder) {
         var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner(accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
     }
 
-    public AccountHolder createAccountHolder(AccountHolderDto accountHolderDto, String user) {
+    public AccountHolder createAccountHolder(AccountHolderDto accountHolderDto) {
         var accountHolder = new AccountHolder();
-        accountHolder.setUsername(user);
+        accountHolder.setUsername(accountHolderDto.getUsername());
         accountHolder.setPassword(passwordEncoder.encode(accountHolderDto.getPassword()));
         accountHolder.setNif(accountHolderDto.getNif());
         accountHolder.setRoles("ROLE_ACCOUNTHOLDER");
@@ -95,4 +107,22 @@ public class AccountUtils {
             throw new EspecificException("Error. Account doesn't have enough founds.");
         }
     }
+
+    public Account getAndVerifyAccount(String account, User accountHolder) {
+        var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account not found."));
+        if(!accountFound.getPrimaryOwner().equals(accountHolder)){
+            throw new EspecificException("Account is not yours!");
+        }
+        return accountFound;
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(()-> new EspecificException("User with ID "+ id +" not found."));
+    }
+    public AccountHolder getUserByNif(String nif) {
+        return accountHolderRepository.findAccountHolderByNif(nif).orElseThrow(()-> new EspecificException("User with NIF "+ nif +" not found."));
+    }
+
+
 }
