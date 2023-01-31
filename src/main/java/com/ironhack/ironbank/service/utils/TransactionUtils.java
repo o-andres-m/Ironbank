@@ -80,4 +80,13 @@ public class TransactionUtils {
         transaction.setObservations("Transfer from "+name+" (Bank: "+bankName+")");
         return transactionRepository.save(transaction);
     }
+
+    public Transaction registerTransferToAnotherAccount(CheckingAccount fromAccount, BigDecimal amount, String account) {
+        var transaction = new Transaction();
+        transaction.setAccount(fromAccount);
+        transaction.setAmount(new Money(amount.negate()));
+        transaction.setTransactionType(TransactionType.TRANSFER);
+        transaction.setObservations("Transfer to "+account);
+        return transactionRepository.save(transaction);
+    }
 }

@@ -15,6 +15,7 @@ import com.ironhack.ironbank.repository.*;
 import com.ironhack.ironbank.service.utils.AccountUtils;
 import com.ironhack.ironbank.service.utils.TransactionUtils;
 import com.ironhack.ironbank.service.utils.Utils;
+import com.ironhack.ironbank.setting.Settings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -238,5 +239,25 @@ public class HoldersService {
         }else{
             return "Nif and Email doesn't match, please go to the Bank to reset your password.";
         }
+    }
+
+    public TransactionDto trasnferToAccount(String account, BigDecimal amount) {
+        User accountHolder = getAccountHolder();
+        var fromAccount = accountUtils.findCheckingAccountByAccountHolder((AccountHolder) accountHolder);
+        //TODO: ver si el account pertenece al banco o es externo....
+        var toAccount = accountRepository.findAccountByNumber(account);
+
+        // TODO Verifiacr SALDO, FRAUD y demas...
+
+        // Register our transaction
+        fromAccount.getBalance().decreaseAmount(amount);
+        var transaction = transactionUtils.registerTransferToAnotherAccount(fromAccount,amount,account);
+
+        if(toAccount.isPresent()){
+            //If toAccount is from our bank, register the transaction
+            toAccount.get().getBalance().increaseAmount(amount);
+            transactionUtils.registerTransferFromThirdParty(toAccount.get(), amount, Settings.getBANK_NAME(),((AccountHolder) accountHolder).getFirstName());
+        }
+        return TransactionDto.fromTransaction(transaction);
     }
 }

@@ -17,6 +17,7 @@ import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.users.Admin;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import com.ironhack.ironbank.model.entities.users.User;
+import com.ironhack.ironbank.model.enums.Status;
 import com.ironhack.ironbank.repository.AccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
 import com.ironhack.ironbank.service.utils.AccountUtils;
@@ -229,6 +230,21 @@ public class AdminService {
         foundUser.setIsAccountNonLocked(false);
         userRepository.save(foundUser);
         return "User id: "+id+", username: "+foundUser.getUsername()+", is now DESACTIVATED";
+    }
+
+    public AccountDto freezeAccount(String account, Integer action) {
+        if(action != 0 ||  action != 1){
+            throw new EspecificException("Please put 'action' param. (0 = FREEZE, 1 = ACTIVE)");
+        }
+        var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account not found."));
+        if(action == 1){
+            accountFound.setStatus(Status.ACTIVE);
+        }
+        if(action == 0){
+            accountFound.setStatus(Status.FREEZE);
+        }
+        return AccountDto.fromAccount(accountRepository.save(accountFound));
     }
 }
 

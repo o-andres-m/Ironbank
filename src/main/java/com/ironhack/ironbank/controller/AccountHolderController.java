@@ -112,6 +112,13 @@ public class AccountHolderController {
     }
 
 
+    @PutMapping("/transfer/{account}")
+    public TransactionDto trasnferToAccount(@PathVariable String account,
+                                            @RequestParam BigDecimal amount){
+        return  holdersService.trasnferToAccount(account, amount);
+    }
+
+
 
 
 }

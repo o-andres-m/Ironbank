@@ -146,5 +146,11 @@ public class AdminController {
         return adminService.updateAccount(account,secondaryOwnerId,minimumBalance,creditLimit,interests);
     }
 
+    @PatchMapping("/freeze")
+    public AccountDto freezeAccount(@PathVariable String account,
+                                    @PathVariable Integer action){
+        return adminService.freezeAccount(account, action);
+    }
+
 
 }

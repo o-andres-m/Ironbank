@@ -6,6 +6,7 @@ import com.ironhack.ironbank.dto.users.ThirdPartyDto;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.model.defaults.Address;
 import com.ironhack.ironbank.model.entities.accounts.Account;
+import com.ironhack.ironbank.model.entities.accounts.CheckingAccount;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.users.Admin;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
@@ -61,8 +62,8 @@ public class AccountUtils {
     }
 
 
-    public void findCheckingAccountByAccountHolder(AccountHolder accountHolder) {
-        var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner(accountHolder).
+    public CheckingAccount findCheckingAccountByAccountHolder(AccountHolder accountHolder) {
+        return checkingAccountRepository.findCheckingAccountByPrimaryOwner(accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
     }
 
