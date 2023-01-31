@@ -89,4 +89,13 @@ public class TransactionUtils {
         transaction.setObservations("Transfer to "+account);
         return transactionRepository.save(transaction);
     }
+
+    public Transaction registerPenalty(Account accountFound, String username) {
+        var transaction = new Transaction();
+        transaction.setAccount(accountFound);
+        transaction.setAmount(new Money(accountFound.getPenaltyFee().getPenaltyAmount().negate()));
+        transaction.setTransactionType(TransactionType.PENALTY);
+        transaction.setObservations("PenaltyFee applied by "+username);
+        return transactionRepository.save(transaction);
+    }
 }

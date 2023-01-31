@@ -125,5 +125,11 @@ public class AccountUtils {
         return accountHolderRepository.findAccountHolderByNif(nif).orElseThrow(()-> new EspecificException("User with NIF "+ nif +" not found."));
     }
 
+    public Account getAccountByNumber(String account) {
+        var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account not found."));
+        return accountFound;
+    }
+
 
 }

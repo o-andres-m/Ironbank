@@ -2,6 +2,7 @@ package com.ironhack.ironbank.controller;
 
 import com.ironhack.ironbank.dto.account.AccountAdminViewDto;
 import com.ironhack.ironbank.dto.account.AccountDto;
+import com.ironhack.ironbank.dto.transaction.TransactionDto;
 import com.ironhack.ironbank.dto.users.AccountHolderDto;
 import com.ironhack.ironbank.dto.users.AdminDto;
 import com.ironhack.ironbank.dto.users.ThirdPartyDto;
@@ -122,6 +123,12 @@ public class AdminController {
         return adminService.desactivateUser(id);
     }
 
+
+    @DeleteMapping("/user/{id}")
+    public String deleteUser(@PathVariable Long id){
+        return adminService.deleteUser(id);
+    }
+
     /**
      * Admin & Accounts
      */
@@ -146,11 +153,24 @@ public class AdminController {
         return adminService.updateAccount(account,secondaryOwnerId,minimumBalance,creditLimit,interests);
     }
 
-    @PatchMapping("/freeze")
+    @PatchMapping("/accounts/freeze/{account}")
     public AccountDto freezeAccount(@PathVariable String account,
                                     @PathVariable Integer action){
         return adminService.freezeAccount(account, action);
     }
+
+    @DeleteMapping("/accounts/delete/{account}")
+    public String deleteAccount(@PathVariable String account){
+        return adminService.deleteAccount(account);
+    }
+
+    @PutMapping("/accounts/penalty/{account}")
+    public TransactionDto penaltyAccount(@PathVariable String account){
+        return adminService.penaltyAccount(account);
+    }
+
+
+
 
 
 }

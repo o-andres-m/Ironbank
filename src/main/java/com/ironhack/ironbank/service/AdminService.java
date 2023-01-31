@@ -2,6 +2,7 @@ package com.ironhack.ironbank.service;
 
 import com.ironhack.ironbank.dto.account.AccountAdminViewDto;
 import com.ironhack.ironbank.dto.account.AccountDto;
+import com.ironhack.ironbank.dto.transaction.TransactionDto;
 import com.ironhack.ironbank.dto.users.AccountHolderDto;
 import com.ironhack.ironbank.dto.users.AdminDto;
 import com.ironhack.ironbank.dto.users.ThirdPartyDto;
@@ -9,6 +10,7 @@ import com.ironhack.ironbank.dto.users.AccountHolderDtoResponse;
 import com.ironhack.ironbank.dto.users.AdminDtoResponse;
 import com.ironhack.ironbank.dto.users.ThirdPartyDtoResponse;
 import com.ironhack.ironbank.exception.EspecificException;
+import com.ironhack.ironbank.exception.UserNotFoundException;
 import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.entities.accounts.CheckingAccount;
 import com.ironhack.ironbank.model.entities.accounts.CreditCardAccount;
@@ -21,7 +23,10 @@ import com.ironhack.ironbank.model.enums.Status;
 import com.ironhack.ironbank.repository.AccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
 import com.ironhack.ironbank.service.utils.AccountUtils;
+import com.ironhack.ironbank.service.utils.TransactionUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -39,6 +44,8 @@ public class AdminService {
     private final AccountUtils accountUtils;
 
     private final AccountRepository accountRepository;
+
+    private final TransactionUtils transactionUtils;
 
 
     /**
@@ -184,14 +191,12 @@ public class AdminService {
     }
 
     public AccountAdminViewDto viewAccount(String account) {
-        var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
-                ()-> new EspecificException("Account not found."));
+        Account accountFound = accountUtils.getAccountByNumber(account);
         return AccountAdminViewDto.fromAccount(accountFound);
     }
 
     public AccountAdminViewDto updateAccount(String account, Optional<Long> secondaryOwnerId, Optional<BigDecimal> minimumBalance, Optional<BigDecimal> creditLimit, Optional<Double> interests) {
-        var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
-                ()-> new EspecificException("Account not found."));
+        Account accountFound = accountUtils.getAccountByNumber(account);
         if (secondaryOwnerId.isPresent() && secondaryOwnerId.get() == 0L){
             accountFound.setSecondaryOwner(null);
         }else {
@@ -236,8 +241,7 @@ public class AdminService {
         if(action != 0 ||  action != 1){
             throw new EspecificException("Please put 'action' param. (0 = FREEZE, 1 = ACTIVE)");
         }
-        var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
-                ()-> new EspecificException("Account not found."));
+        Account accountFound =accountUtils.getAccountByNumber(account);
         if(action == 1){
             accountFound.setStatus(Status.ACTIVE);
         }
@@ -245,6 +249,30 @@ public class AdminService {
             accountFound.setStatus(Status.FREEZE);
         }
         return AccountDto.fromAccount(accountRepository.save(accountFound));
+    }
+
+
+
+    public String deleteUser(Long id) {
+        var foundUser = userRepository.findById(id).orElseThrow(
+                ()-> new EspecificException("User Not Found"));
+        userRepository.delete(foundUser);
+        return "User Nº "+id+" deleted. Their accounts have been deleted as well";
+    }
+
+    public String deleteAccount(String account) {
+        Account accountFound = accountUtils.getAccountByNumber(account);
+        accountRepository.delete(accountFound);
+        return "Account Nº "+account+" deleted. Their transactions have been deleted as well";
+    }
+
+    public TransactionDto penaltyAccount(String account) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var admin = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(()-> new UserNotFoundException(authentication.getName()));
+        Account accountFound = accountUtils.getAccountByNumber(account);
+        accountFound.getBalance().decreaseAmount(accountFound.getPenaltyFee().getPenaltyAmount());
+        return TransactionDto.fromTransaction(transactionUtils.registerPenalty(accountFound, admin.getUsername()));
     }
 }
 
