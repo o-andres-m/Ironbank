@@ -119,4 +119,22 @@ public class ThirdPartyService {
         accountRepository.save(accountToCredit);
         return TransactionDto.fromTransaction(transactionUtils.registerTransferFromThirdParty(accountToCredit,transferDto.getAmount(),bankName,name));
     }
+
+
+    public TransactionDto debitService(String account, BigDecimal amount) {
+        var thirdParty = (ThirdParty) getThirdParty();
+
+        var accountToCharge = accountRepository.findAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account doesn't exists."));
+        var foundAccount = accountMapRepository.findAccountMapByAccountNumber(account).orElseThrow(
+                ()-> new EspecificException("ThirdParty doesn't have registered the Account."));
+            // TODO : Validar que no quede en negativo + el fraud detection
+            accountUtils.cehckFinalBalance(accountToCharge,amount);
+            // TODO fraudDetectionUtils
+            accountToCharge.getBalance().decreaseAmount(amount);
+            accountRepository.save(accountToCharge);
+
+            return TransactionDto.fromTransaction(transactionUtils.registerChargeService(accountToCharge,amount,thirdParty.getCompanyName()));
+
+    }
 }

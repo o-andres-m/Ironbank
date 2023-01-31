@@ -37,7 +37,7 @@ public class SecurityConfig {
 
 
                 // ThirdParty ENDPOINTS (any method)
-                .requestMatchers("/thirdparty/account").hasRole("THIRDPARTY")
+                .requestMatchers("/thirdparty/account**").hasRole("THIRDPARTY")
 
 
                 // Public ENDPOINTS (any method)

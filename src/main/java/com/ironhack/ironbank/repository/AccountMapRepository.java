@@ -15,4 +15,6 @@ public interface AccountMapRepository extends JpaRepository<AccountMap, Long> {
     List<AccountMap> findAllByThirdParty(User thirdParty);
 
     Optional<AccountMap> findAccountMapByAccountNumberAndThirdPartyUsername(String account, String username);
+
+    Optional<AccountMap> findAccountMapByAccountNumber(String number);
 }

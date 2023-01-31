@@ -30,7 +30,8 @@ public class ThirdPartyController {
 
 
     @PostMapping("/account")
-    public AccountMapDto registerAccount (@RequestParam String account, @RequestParam String secretKey){
+    public AccountMapDto registerAccount (@RequestParam String account,
+                                          @RequestParam String secretKey){
         return thirdPartyService.registerAccount(account, secretKey);
     }
 
@@ -57,4 +58,12 @@ public class ThirdPartyController {
                                             @RequestHeader (name = "thirdClient") String name){
         return thirdPartyService.transferToAccount(transferDto, bankName, name);
     }
+
+    @PatchMapping("/debitservice")
+    public TransactionDto debitservice( @RequestHeader(name = "account") String account,
+                                        @RequestParam BigDecimal amount
+    ){
+        return thirdPartyService.debitService(account,amount);
+    }
+
 }
