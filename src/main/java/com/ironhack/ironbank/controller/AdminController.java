@@ -112,6 +112,16 @@ public class AdminController {
         return adminService.updateAdmin(id, username, firstName, lastName, email);
     }
 
+    @PatchMapping("/activate/{id}")
+    public String activateUser(@PathVariable Long id){
+        return adminService.activateUser(id);
+    }
+
+    @PatchMapping("/desactivate/{id}")
+    public String desactivateUser(@PathVariable Long id){
+        return adminService.desactivateUser(id);
+    }
+
     /**
      * Admin & Accounts
      */

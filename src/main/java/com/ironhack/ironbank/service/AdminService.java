@@ -216,5 +216,17 @@ public class AdminService {
         }
         return AccountAdminViewDto.fromAccount(accountRepository.save(accountFound));
     }
+
+    public String activateUser(Long id) {
+        User foundUser = accountUtils.getUserById(id);
+        foundUser.setIsAccountNonLocked(true);
+        return "User id: "+id+", username: "+foundUser.getUsername()+", is now ACTIVATED";
+    }
+
+    public String desactivateUser(Long id) {
+        User foundUser = accountUtils.getUserById(id);
+        foundUser.setIsAccountNonLocked(false);
+        return "User id: "+id+", username: "+foundUser.getUsername()+", is now DESACTIVATED";
+    }
 }
 
