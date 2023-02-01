@@ -11,10 +11,7 @@ import com.ironhack.ironbank.dto.users.AdminDtoResponse;
 import com.ironhack.ironbank.dto.users.ThirdPartyDtoResponse;
 import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.exception.UserNotFoundException;
-import com.ironhack.ironbank.model.entities.accounts.Account;
-import com.ironhack.ironbank.model.entities.accounts.CheckingAccount;
-import com.ironhack.ironbank.model.entities.accounts.CreditCardAccount;
-import com.ironhack.ironbank.model.entities.accounts.SavingAccount;
+import com.ironhack.ironbank.model.entities.accounts.*;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.users.Admin;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
@@ -25,6 +22,8 @@ import com.ironhack.ironbank.repository.CheckingAccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
 import com.ironhack.ironbank.service.utils.AccountUtils;
 import com.ironhack.ironbank.service.utils.TransactionUtils;
+import com.ironhack.ironbank.service.utils.UserUtils;
+import com.ironhack.ironbank.service.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Check;
 import org.springframework.security.core.Authentication;
@@ -44,6 +43,8 @@ public class AdminService {
     private final UserRepository userRepository;
 
     private final AccountUtils accountUtils;
+
+    private final UserUtils userUtils;
 
     private final AccountRepository accountRepository;
 
@@ -204,8 +205,8 @@ public class AdminService {
         if (secondaryOwnerId.isPresent() && secondaryOwnerId.get() == 0L){
             accountFound.setSecondaryOwner(null);
         }else {
-            secondaryOwnerId.ifPresent(aLong -> accountFound.setSecondaryOwner((AccountHolder) userRepository.findById(aLong).orElseThrow(
-                    () -> new EspecificException("Secondary Owner Id must be an Id of User List"))));
+            // TODO VER QUE FUNCIONE!!! Se cambio!
+            secondaryOwnerId.ifPresent(aLong -> accountFound.setSecondaryOwner(userUtils.getAccountHolder(aLong)));
         }
         if (minimumBalance.isPresent()) {
             if(accountFound instanceof CheckingAccount){
@@ -258,11 +259,12 @@ public class AdminService {
 
 
     public String deleteUser(Long id) {
-        var foundUser = userRepository.findById(id).orElseThrow(
-                ()-> new EspecificException("User Not Found"));
+
+        var foundUser = userUtils.getAccountHolder(id);
         userRepository.delete(foundUser);
         return "User Nº "+id+" deleted. Their accounts have been deleted as well";
     }
+
 
     public String deleteAccount(String account) {
         Account accountFound = accountUtils.getAccountByNumber(account);
@@ -338,6 +340,55 @@ public class AdminService {
             }
         }
         return transactionList;
+    }
+
+    public AccountDto createChecking(Long id) {
+
+        var accountHolder = userUtils.getAccountHolder(id);
+        var account = checkingAccountRepository.findCheckingAccountByPrimaryOwner(accountHolder);
+        if (account.isPresent()){
+            throw new EspecificException("User have already one Checking Account");
+        }
+        if (Utils.isOver24(Utils.calculateAge( accountHolder.getDateOfBirth()))) {
+            var accountCreated = new CheckingAccount(accountHolder);
+            accountRepository.save(accountCreated);
+            return AccountDto.fromAccount(accountCreated);
+        } else {
+            var accountCreated = new StudentAccount(accountHolder);
+            accountRepository.save(accountCreated);
+            return AccountDto.fromAccount(accountCreated);
+        }
+    }
+
+    public AccountDto createCredit(Long id) {
+        var accountHolder = userUtils.getAccountHolder(id);
+        accountUtils.findCheckingAccountByAccountHolder(accountHolder);
+        var accountCreated = new CreditCardAccount(accountHolder);
+        accountRepository.save(accountCreated);
+        return AccountDto.fromAccount(accountCreated);
+    }
+
+    public AccountDto createSaving(Long id, BigDecimal amount) {
+        var accountHolder = userUtils.getAccountHolder(id);
+        if (amount.intValueExact()<100) throw new EspecificException("Minimum amount: 100");
+
+        var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner(accountHolder).
+                orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
+
+        var balance = checkingAccount.getBalance().getAmount().doubleValue();
+        accountUtils.cehckFinalBalance(checkingAccount,amount);
+
+        Account accountCreated = new SavingAccount(accountHolder);
+        accountCreated.getBalance().increaseAmount(amount);
+        accountRepository.save(accountCreated);
+        // Register new SavingAccount
+        transactionUtils.registerNewSavingAccount(accountCreated,amount);
+        // Register less balance in CheckingAccount
+        transactionUtils.fromCheckingtoSaving(checkingAccount,amount,accountCreated);
+        // Update new balance in checkingAccount
+        checkingAccount.getBalance().decreaseAmount(amount);
+        accountRepository.save(checkingAccount);
+        return AccountDto.fromAccount(accountCreated);
     }
 }
 

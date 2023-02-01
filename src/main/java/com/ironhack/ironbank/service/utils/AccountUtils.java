@@ -51,10 +51,12 @@ public class AccountUtils {
                 ft.format(dNow);
     }
 
+    //TODO MOVER A USER UTILS
     public void verifyUserExists(String user) {
         var findUserInDb = userRepository.findByUsername(user);
         if (findUserInDb.isPresent()) throw new EspecificException("Username already exists. Please change username.");
     }
+    //TODO MOVER A USER UTILS
 
     public void verifyNifExists(String user) {
         var findUserInDb = accountHolderRepository.findAccountHolderByNif(user);
@@ -66,6 +68,7 @@ public class AccountUtils {
         return checkingAccountRepository.findCheckingAccountByPrimaryOwner(accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
     }
+    //TODO MOVER A USER UTILS
 
     public AccountHolder createAccountHolder(AccountHolderDto accountHolderDto) {
         var accountHolder = new AccountHolder();
@@ -79,6 +82,7 @@ public class AccountUtils {
         accountHolder.setAddress(new Address(accountHolderDto.getAddress(), accountHolderDto.getEmail(), accountHolderDto.getPhone()));
         return accountHolder;
     }
+    //TODO MOVER A USER UTILS
 
     public ThirdParty createThirdParty(ThirdPartyDto thirdPartyDto) {
         var thirdParty = new ThirdParty();
@@ -90,6 +94,7 @@ public class AccountUtils {
         thirdParty.setAddress(new Address(thirdPartyDto.getAddress(), thirdPartyDto.getEmail(), thirdPartyDto.getPhone()));
         return thirdParty;
     }
+    //TODO MOVER A USER UTILS
 
     public  Admin createAdmin(AdminDto adminDto) {
         var admin = new Admin();
@@ -118,11 +123,9 @@ public class AccountUtils {
         return accountFound;
     }
 
+    //TODO MOVER ESTA A USER UTILS
     public User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(()-> new EspecificException("User with ID "+ id +" not found."));
-    }
-    public AccountHolder getUserByNif(String nif) {
-        return accountHolderRepository.findAccountHolderByNif(nif).orElseThrow(()-> new EspecificException("User with NIF "+ nif +" not found."));
     }
 
     public Account getAccountByNumber(String account) {

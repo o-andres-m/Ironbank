@@ -14,6 +14,7 @@ import com.ironhack.ironbank.model.entities.users.User;
 import com.ironhack.ironbank.repository.*;
 import com.ironhack.ironbank.service.utils.AccountUtils;
 import com.ironhack.ironbank.service.utils.TransactionUtils;
+import com.ironhack.ironbank.service.utils.UserUtils;
 import com.ironhack.ironbank.service.utils.Utils;
 import com.ironhack.ironbank.setting.Settings;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,8 @@ public class HoldersService {
 
     private final AccountHolderRepository accountHolderRepository;
 
+    private final UserUtils userUtils;
+
 
 
     public AccountHolderDtoResponse register(AccountHolderDto accountHolderDto) {
@@ -68,7 +71,8 @@ public class HoldersService {
     Method to get the account Holder
      */
 
-    private User getAccountHolder() {
+    // TODO MOVER
+    private User getLoginUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var accountHolder = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(()-> new UserNotFoundException(authentication.getName()));
@@ -76,11 +80,11 @@ public class HoldersService {
     }
 
     public AccountDto createCheckingAccount() {
-        User accountHolder = getAccountHolder();
+        User accountHolder = getLoginUser();
 
         var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder);
         if (checkingAccount.isPresent()){
-            throw new EspecificException("Have already one Checking Account");
+            throw new EspecificException("User have already one Checking Account");
         }
 
         if (Utils.isOver24(Utils.calculateAge(((AccountHolder) accountHolder).getDateOfBirth()))) {
@@ -97,7 +101,7 @@ public class HoldersService {
 
     public AccountDto createSavingAccount(BigDecimal amount) {
         if (amount.intValueExact()<100) throw new EspecificException("Minimum amount: 100");
-        var accountHolder = getAccountHolder();
+        var accountHolder = getLoginUser();
         var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
         var balance = checkingAccount.getBalance().getAmount().doubleValue();
@@ -119,7 +123,7 @@ public class HoldersService {
     }
 
     public AccountDto createCreditAccount() {
-        User accountHolder = getAccountHolder();
+        User accountHolder = getLoginUser();
         accountUtils.findCheckingAccountByAccountHolder((AccountHolder) accountHolder);
         var accountCreated = new CreditCardAccount((AccountHolder) accountHolder);
         accountRepository.save(accountCreated);
@@ -128,7 +132,7 @@ public class HoldersService {
 
 
     public AccountDto depositInCheckingAccount(BigDecimal amount) {
-        User accountHolder = getAccountHolder();
+        User accountHolder = getLoginUser();
         var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
         checkingAccount.getBalance().increaseAmount(amount);
@@ -138,7 +142,7 @@ public class HoldersService {
     }
 
     public AccountDto buyWithCredit(BigDecimal amount,String store) {
-        User accountHolder = getAccountHolder();
+        User accountHolder = getLoginUser();
         var creditAccount = creditCardAccountRepository.findCreditCardAccountByPrimaryOwner((AccountHolder) accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Credit Card."));
         var limit = creditAccount.getCreditLimit().doubleValue();
@@ -155,7 +159,7 @@ public class HoldersService {
     }
 
     public AccountDto withdraw(BigDecimal amount) {
-        User accountHolder = getAccountHolder();
+        User accountHolder = getLoginUser();
         var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
         var availableAmount = checkingAccount.getBalance().getAmount().doubleValue();
@@ -171,7 +175,7 @@ public class HoldersService {
 
 
     public List<AccountDto> allAccounts() {
-        User accountHolder = getAccountHolder();
+        User accountHolder = getLoginUser();
         var accountList = accountRepository.findAccountByPrimaryOwner_Username(accountHolder.getUsername());
         var accountListDto = new ArrayList<AccountDto>();
 
@@ -182,7 +186,7 @@ public class HoldersService {
     }
 
     public AccountDto viewAccount(String account) {
-        User accountHolder = getAccountHolder();
+        User accountHolder = getLoginUser();
         Account accountFound = accountUtils.getAndVerifyAccount(account, accountHolder);
         return AccountDto.fromAccount(accountFound);
     }
@@ -190,7 +194,7 @@ public class HoldersService {
 
 
     public List<TransactionDto> viewTransactions(String account) {
-        User accountHolder = getAccountHolder();
+        User accountHolder = getLoginUser();
         accountUtils.getAndVerifyAccount(account, accountHolder);
         var transactionList = transactionRepository.findTransactionsByAccount_NumberOrderByDateDesc(account);
         var transacionDtoList = new ArrayList<TransactionDto>();
@@ -201,13 +205,13 @@ public class HoldersService {
     }
 
     public AccountHolderInfoDto viewPersonalInfo() {
-        User accountHolder = getAccountHolder();
+        User accountHolder = getLoginUser();
         return AccountHolderInfoDto.fromAccountHolder((AccountHolder) userRepository.findByUsername(accountHolder.getUsername()).get());
     }
 
     public AccountHolderDtoResponse update(Optional<String> username, Optional<String> password, Optional<String> address, Optional<String> phone, Optional<String> email) {
         username.ifPresent(accountUtils::verifyUserExists);
-        var accountHolder = (AccountHolder) getAccountHolder();
+        var accountHolder = (AccountHolder) getLoginUser();
         username.ifPresent(accountHolder::setUsername);
         password.ifPresent(s -> accountHolder.setPassword(passwordEncoder.encode(s)));
         var accountHolderAddress = accountHolder.getAddress();
@@ -220,12 +224,12 @@ public class HoldersService {
 
 
     public AccountDto setSecondaryOwner(String account, String secondaryOwnerNif) {
-        User accountHolder = getAccountHolder();
+        User accountHolder = getLoginUser();
         var accountToUpdate= accountUtils.getAndVerifyAccount(account, accountHolder);
         if (secondaryOwnerNif.equals(0)){
             accountToUpdate.setSecondaryOwner(null);
         }else {
-            var secondaryOwner = accountUtils.getUserByNif(secondaryOwnerNif);
+            var secondaryOwner = userUtils.getUserByNif(secondaryOwnerNif);
                 accountToUpdate.setSecondaryOwner(secondaryOwner);
         }
         return AccountDto.fromAccount(accountRepository.save(accountToUpdate));
@@ -242,7 +246,7 @@ public class HoldersService {
     }
 
     public TransactionDto trasnferToAccount(String account, BigDecimal amount) {
-        User accountHolder = getAccountHolder();
+        User accountHolder = getLoginUser();
         var fromAccount = accountUtils.findCheckingAccountByAccountHolder((AccountHolder) accountHolder);
         //TODO: ver si el account pertenece al banco o es externo....
         var toAccount = accountRepository.findAccountByNumber(account);

@@ -193,4 +193,20 @@ public class AdminController {
     public List<TransactionDto> debitCreditCard(){
         return adminService.debitCreditCard();
     }
+
+    @PostMapping("/accounts/create/checking/{id}")
+    public AccountDto createChecking(@PathVariable Long id){
+        return adminService.createChecking(id);
+    }
+
+    @PostMapping("/accounts/create/credit/{id}")
+    public AccountDto createCredit(@PathVariable Long id){
+        return adminService.createCredit(id);
+    }
+
+    @PostMapping("/accounts/create/saving/{id}")
+    public AccountDto createSaving(@PathVariable Long id,
+                                   @RequestParam BigDecimal amount){
+        return adminService.createSaving(id, amount);
+    }
 }
