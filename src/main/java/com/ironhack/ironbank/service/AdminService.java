@@ -328,7 +328,7 @@ public class AdminService {
 
                 //Debitamos de la cuenta + registramos el movimiento + actualizamos cuenta
                 checkingAccount.get().getBalance().decreaseAmount(creditCard.getBalance().getAmount());
-                transactionUtils.registerDebitCreditCard(checkingAccount.get(), creditCard);
+                transactionList.add(TransactionDto.fromTransaction(transactionUtils.registerDebitCreditCard(checkingAccount.get(), creditCard)));
                 accountRepository.save(checkingAccount.get());
 
                 // Ponemos la creditcard en cero + registramos movimiento + actualizamos credit card
