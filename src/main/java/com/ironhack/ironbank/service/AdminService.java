@@ -279,19 +279,63 @@ public class AdminService {
         return TransactionDto.fromTransaction(transactionUtils.registerPenalty(accountFound, admin.getUsername()));
     }
 
-    public List<AccountDto> applyInterestsCredit() {
-        return null;
+    public List<TransactionDto> applyInterestsCredit() {
+        var listOfAccounts = accountRepository.findAllCreditCardAccounts();
+        var transactionList = new ArrayList<TransactionDto>();
+        for(CreditCardAccount creditCardAccount : listOfAccounts){
+            //Interests Value = Interests * Balance / 100
+            var interests = creditCardAccount.getInterests().getValue() * creditCardAccount.getBalance().getAmount().doubleValue() / 100;
+            creditCardAccount.getBalance().increaseAmount(BigDecimal.valueOf(interests));
+            accountRepository.save(creditCardAccount);
+            transactionList.add(TransactionDto.fromTransaction(transactionUtils.registerInterests(creditCardAccount,interests)));
+        }
+        return transactionList;
     }
 
     public List<TransactionDto> applyInterestsSaving() {
         var listOfAccounts = accountRepository.findAllSavingAccounts();
         var transactionList = new ArrayList<TransactionDto>();
         for(SavingAccount checkingAccount : listOfAccounts){
-            //Interests Value = Interests * Balanc / 100
+            //Interests Value = Interests * Balance / 100
             var interests = checkingAccount.getInterests().getValue() * checkingAccount.getBalance().getAmount().doubleValue() / 100;
             checkingAccount.getBalance().increaseAmount(BigDecimal.valueOf(interests));
             accountRepository.save(checkingAccount);
             transactionList.add(TransactionDto.fromTransaction(transactionUtils.registerInterests(checkingAccount,interests)));
+        }
+        return transactionList;
+    }
+
+    public List<TransactionDto> applyMaintenance() {
+        var listOfAccounts = accountRepository.findAllCheckingAccounts();
+        var transactionList = new ArrayList<TransactionDto>();
+        for(CheckingAccount account : listOfAccounts) {
+            account.getBalance().decreaseAmount(account.getMontlyMaintenance());
+            accountRepository.save(account);
+            transactionList.add(TransactionDto.fromTransaction(transactionUtils.registerMonthlyMaintenance(account, account.getMontlyMaintenance())));
+        }
+        return transactionList;
+    }
+
+    public List<TransactionDto> debitCreditCard() {
+        var listOfCreditCards = accountRepository.findAllCreditCardAccounts();
+        var transactionList = new ArrayList<TransactionDto>();
+        for(CreditCardAccount creditCard : listOfCreditCards) {
+
+            //Verifica que la credit card tenga consumo
+            if(creditCard.getBalance().getAmount().signum() == 1) {
+                var owner = userRepository.findById(creditCard.getPrimaryOwner().getId());
+                var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) owner.get());
+
+                //Debitamos de la cuenta + registramos el movimiento + actualizamos cuenta
+                checkingAccount.get().getBalance().decreaseAmount(creditCard.getBalance().getAmount());
+                transactionUtils.registerDebitCreditCard(checkingAccount.get(), creditCard);
+                accountRepository.save(checkingAccount.get());
+
+                // Ponemos la creditcard en cero + registramos movimiento + actualizamos credit card
+                transactionUtils.registerPaymentCreditCard(creditCard, checkingAccount.get());
+                creditCard.getBalance().decreaseAmount(creditCard.getBalance().getAmount());
+                accountRepository.save(creditCard);
+            }
         }
         return transactionList;
     }

@@ -165,14 +165,17 @@ public class AdminController {
         return adminService.deleteAccount(account);
     }
 
+    /**
+     * Penalty, Interests, MonthlyMaintenance
+     */
+
     @PutMapping("/accounts/penalty/{account}")
     public TransactionDto penaltyAccount(@PathVariable String account){
         return adminService.penaltyAccount(account);
     }
 
-
     @PutMapping("/accounts/interests/credit")
-    public List<AccountDto> applyInterestsCredit(){
+    public List<TransactionDto> applyInterestsCredit(){
         return adminService.applyInterestsCredit();
     }
 
@@ -181,4 +184,13 @@ public class AdminController {
         return adminService.applyInterestsSaving();
     }
 
+    @PutMapping("/accounts/maintenance")
+    public List<TransactionDto> applyMaintenance(){
+        return adminService.applyMaintenance();
+    }
+
+    @PutMapping("/accounts/debitcredit")
+    public List<TransactionDto> debitCreditCard(){
+        return adminService.debitCreditCard();
+    }
 }

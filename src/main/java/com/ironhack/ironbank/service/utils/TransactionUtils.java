@@ -5,7 +5,6 @@ import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.entities.accounts.CheckingAccount;
 import com.ironhack.ironbank.model.entities.accounts.CreditCardAccount;
-import com.ironhack.ironbank.model.entities.accounts.SavingAccount;
 import com.ironhack.ironbank.model.enums.TransactionType;
 import com.ironhack.ironbank.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -106,6 +105,33 @@ public class TransactionUtils {
         transaction.setAmount(new Money(BigDecimal.valueOf(interests)));
         transaction.setTransactionType(TransactionType.INTERESTS);
         transaction.setObservations("Interests Applied");
+        return transactionRepository.save(transaction);
+    }
+
+    public Transaction registerMonthlyMaintenance(Account account, BigDecimal amount) {
+        var transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(new Money(amount.negate()));
+        transaction.setTransactionType(TransactionType.MONTHLY_MAINTENANCE);
+        transaction.setObservations("Monthly Maintenance Applied");
+        return transactionRepository.save(transaction);
+    }
+
+    public Transaction registerDebitCreditCard(Account account, CreditCardAccount creditCard) {
+        var transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(new Money(creditCard.getBalance().getAmount().negate()));
+        transaction.setTransactionType(TransactionType.DEBIT_CREDIT_CARD);
+        transaction.setObservations("Payment CreditCard Nº "+creditCard.getNumber());
+        return transactionRepository.save(transaction);
+    }
+
+    public Transaction registerPaymentCreditCard(CreditCardAccount creditCard, CheckingAccount checkingAccount) {
+        var transaction = new Transaction();
+        transaction.setAccount(creditCard);
+        transaction.setAmount(new Money(creditCard.getBalance().getAmount().negate()));
+        transaction.setTransactionType(TransactionType.DEBIT_CREDIT_CARD);
+        transaction.setObservations("CreditCard Debited from Account Nº "+checkingAccount.getNumber());
         return transactionRepository.save(transaction);
     }
 }
