@@ -21,10 +21,12 @@ import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import com.ironhack.ironbank.model.entities.users.User;
 import com.ironhack.ironbank.model.enums.Status;
 import com.ironhack.ironbank.repository.AccountRepository;
+import com.ironhack.ironbank.repository.CheckingAccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
 import com.ironhack.ironbank.service.utils.AccountUtils;
 import com.ironhack.ironbank.service.utils.TransactionUtils;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.Check;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -46,6 +48,8 @@ public class AdminService {
     private final AccountRepository accountRepository;
 
     private final TransactionUtils transactionUtils;
+
+    private final CheckingAccountRepository checkingAccountRepository;
 
 
     /**
@@ -273,6 +277,23 @@ public class AdminService {
         Account accountFound = accountUtils.getAccountByNumber(account);
         accountFound.getBalance().decreaseAmount(accountFound.getPenaltyFee().getPenaltyAmount());
         return TransactionDto.fromTransaction(transactionUtils.registerPenalty(accountFound, admin.getUsername()));
+    }
+
+    public List<AccountDto> applyInterestsCredit() {
+        return null;
+    }
+
+    public List<TransactionDto> applyInterestsSaving() {
+        var listOfAccounts = accountRepository.findAllSavingAccounts();
+        var transactionList = new ArrayList<TransactionDto>();
+        for(SavingAccount checkingAccount : listOfAccounts){
+            //Interests Value = Interests * Balanc / 100
+            var interests = checkingAccount.getInterests().getValue() * checkingAccount.getBalance().getAmount().doubleValue() / 100;
+            checkingAccount.getBalance().increaseAmount(BigDecimal.valueOf(interests));
+            accountRepository.save(checkingAccount);
+            transactionList.add(TransactionDto.fromTransaction(transactionUtils.registerInterests(checkingAccount,interests)));
+        }
+        return transactionList;
     }
 }
 

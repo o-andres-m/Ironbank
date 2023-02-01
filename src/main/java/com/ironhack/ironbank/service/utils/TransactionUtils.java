@@ -5,6 +5,7 @@ import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.entities.accounts.CheckingAccount;
 import com.ironhack.ironbank.model.entities.accounts.CreditCardAccount;
+import com.ironhack.ironbank.model.entities.accounts.SavingAccount;
 import com.ironhack.ironbank.model.enums.TransactionType;
 import com.ironhack.ironbank.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -96,6 +97,15 @@ public class TransactionUtils {
         transaction.setAmount(new Money(accountFound.getPenaltyFee().getPenaltyAmount().negate()));
         transaction.setTransactionType(TransactionType.PENALTY);
         transaction.setObservations("PenaltyFee applied by "+username);
+        return transactionRepository.save(transaction);
+    }
+
+    public Transaction registerInterests(Account account, double interests) {
+        var transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(new Money(BigDecimal.valueOf(interests)));
+        transaction.setTransactionType(TransactionType.INTERESTS);
+        transaction.setObservations("Interests Applied");
         return transactionRepository.save(transaction);
     }
 }

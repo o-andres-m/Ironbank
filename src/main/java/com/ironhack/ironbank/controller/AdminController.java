@@ -9,6 +9,7 @@ import com.ironhack.ironbank.dto.users.ThirdPartyDto;
 import com.ironhack.ironbank.dto.users.AccountHolderDtoResponse;
 import com.ironhack.ironbank.dto.users.AdminDtoResponse;
 import com.ironhack.ironbank.dto.users.ThirdPartyDtoResponse;
+import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.service.AdminService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -170,7 +171,14 @@ public class AdminController {
     }
 
 
+    @PutMapping("/accounts/interests/credit")
+    public List<AccountDto> applyInterestsCredit(){
+        return adminService.applyInterestsCredit();
+    }
 
-
+    @PutMapping("/accounts/interests/saving")
+    public List<TransactionDto> applyInterestsSaving(){
+        return adminService.applyInterestsSaving();
+    }
 
 }
