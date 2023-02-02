@@ -27,13 +27,13 @@ public class TransactionUtils {
         transactionRepository.save(transaction);
     }
 
-    public void registerWithdraw(Account account, BigDecimal amount){
+    public Transaction registerWithdraw(Account account, BigDecimal amount){
         var transaction = new Transaction();
         transaction.setAccount(account);
         transaction.setAmount(new Money(amount.negate()));
         transaction.setTransactionType(TransactionType.WITHDRAW);
         transaction.setObservations("Owner Withdraw");
-        transactionRepository.save(transaction);
+        return transactionRepository.save(transaction);
     }
 
     public void registerNewSavingAccount(Account account, BigDecimal amount) {
@@ -45,12 +45,21 @@ public class TransactionUtils {
         transactionRepository.save(transaction);
     }
 
-    public void fromCheckingtoSaving(Account account, BigDecimal amount,Account newSavigAccount) {
+    public Transaction registerDepositSavingAccount(Account account, BigDecimal amount) {
+        var transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(new Money(amount));
+        transaction.setTransactionType(TransactionType.DEPOSIT);
+        transaction.setObservations("Deposit to Saving Account");
+        return transactionRepository.save(transaction);
+    }
+
+    public void fromCheckingtoSaving(Account account, BigDecimal amount,Account newSavingAccount) {
         var transaction = new Transaction();
         transaction.setAccount(account);
         transaction.setAmount(new Money(amount.negate()));
         transaction.setTransactionType(TransactionType.CREATE_SAVING_ACCOUNT);
-        transaction.setObservations("Create New Saving Account -> "+newSavigAccount.getNumber());
+        transaction.setObservations("Deposit to SavingAccount -> "+newSavingAccount.getNumber());
         transactionRepository.save(transaction);
     }
 

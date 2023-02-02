@@ -11,6 +11,7 @@ import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.users.Admin;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import com.ironhack.ironbank.model.entities.users.User;
+import com.ironhack.ironbank.model.enums.Status;
 import com.ironhack.ironbank.repository.AccountHolderRepository;
 import com.ironhack.ironbank.repository.AccountRepository;
 import com.ironhack.ironbank.repository.CheckingAccountRepository;
@@ -108,8 +109,8 @@ public class AccountUtils {
     }
 
 
-    public void cehckFinalBalance(Account accountToCharge, BigDecimal amount) {
-        if (accountToCharge.getBalance().getAmount().subtract(amount).signum()<0){
+    public void checkFinalBalance(Account accountToCharge, BigDecimal amount) {
+        if (accountToCharge.getBalance().getAmount().subtract(amount).signum() < 0){
             throw new EspecificException("Error. Account doesn't have enough founds.");
         }
     }
@@ -135,4 +136,20 @@ public class AccountUtils {
     }
 
 
+    public void checkMinimumBalance(Account account, BigDecimal amount) {
+        if (account.getBalance().getAmount().subtract(amount).subtract(account.getPenaltyFee().getPenaltyAmount()).doubleValue() <= 0 &&
+                account.getBalance().getAmount().subtract(amount).subtract(account.getPenaltyFee().getPenaltyAmount()).doubleValue() != account.getPenaltyFee().getPenaltyAmount().negate().doubleValue()){
+            throw new EspecificException("Error. You are trying to let less the amount of " +
+                    "penalty fee, please withdraw less amount or make a total withdraw.");
+        }
+
+    }
+
+    public boolean checkFinalBalanceZero(Account account, BigDecimal amount) {
+        return account.getBalance().getAmount().subtract(amount).doubleValue() == 0;
+    }
+
+    public void checkAccountNotFreezed(Account account) {
+        if(account.getStatus().equals(Status.FREEZE)) throw new EspecificException("Account Freezed. Please contact Bank.");
+    }
 }

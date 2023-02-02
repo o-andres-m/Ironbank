@@ -100,7 +100,7 @@ public class ThirdPartyService {
                 ()-> new EspecificException("Account doesn't exists."));
         if (accountToCharge.getSecretKey().equals(secretKey)){
             // TODO : Validar que no quede en negativo + el fraud detection
-            accountUtils.cehckFinalBalance(accountToCharge,amount);
+            accountUtils.checkFinalBalance(accountToCharge,amount);
             // TODO fraudDetectionUtils
             accountToCharge.getBalance().decreaseAmount(amount);
             accountRepository.save(accountToCharge);
@@ -129,7 +129,7 @@ public class ThirdPartyService {
         var foundAccount = accountMapRepository.findAccountMapByAccountNumber(account).orElseThrow(
                 ()-> new EspecificException("ThirdParty doesn't have registered the Account."));
             // TODO : Validar que no quede en negativo + el fraud detection
-            accountUtils.cehckFinalBalance(accountToCharge,amount);
+            accountUtils.checkFinalBalance(accountToCharge,amount);
             // TODO fraudDetectionUtils
             accountToCharge.getBalance().decreaseAmount(amount);
             accountRepository.save(accountToCharge);

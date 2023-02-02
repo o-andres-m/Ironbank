@@ -5,14 +5,13 @@ import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.bind.support.WebExchangeBindException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +21,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(EspecificException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String getNotFoundHandler(EspecificException ex){
+    public String getEspecific(EspecificException ex){
         return ex.getMessage();
     }
 
@@ -34,10 +33,15 @@ public class ControllerAdvice {
 
     @ExceptionHandler(MissingRequestHeaderException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String getNotFoundHandler(MissingRequestHeaderException ex){
+    public String getMissingHeaders(MissingRequestHeaderException ex){
         return ex.getMessage();
     }
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String getMissingParameter(MissingServletRequestParameterException ex){
+        return ex.getMessage();
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

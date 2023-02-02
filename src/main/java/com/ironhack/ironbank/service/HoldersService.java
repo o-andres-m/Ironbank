@@ -11,11 +11,9 @@ import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.model.entities.accounts.*;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.users.User;
+import com.ironhack.ironbank.model.enums.Status;
 import com.ironhack.ironbank.repository.*;
-import com.ironhack.ironbank.service.utils.AccountUtils;
-import com.ironhack.ironbank.service.utils.TransactionUtils;
-import com.ironhack.ironbank.service.utils.UserUtils;
-import com.ironhack.ironbank.service.utils.Utils;
+import com.ironhack.ironbank.service.utils.*;
 import com.ironhack.ironbank.setting.Settings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -32,9 +30,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class HoldersService {
 
+    private final AccountHolderRepository accountHolderRepository;
+
     private final UserRepository userRepository;
 
-    private final AccountUtils accountUtils;
+    private final UserUtils userUtils;
 
     private final AccountRepository accountRepository;
 
@@ -42,16 +42,17 @@ public class HoldersService {
 
     private final CreditCardAccountRepository creditCardAccountRepository;
 
-    private final TransactionUtils transactionUtils;
+    private final SavingAccountRepository savingAccountRepository;
+
+    private final AccountUtils accountUtils;
+
+    private final FraudDetectionUtils fraudDetectionUtils;
 
     private final TransactionRepository transactionRepository;
 
+    private final TransactionUtils transactionUtils;
+
     private final PasswordEncoder passwordEncoder;
-
-    private final AccountHolderRepository accountHolderRepository;
-
-    private final UserUtils userUtils;
-
 
 
     public AccountHolderDtoResponse register(AccountHolderDto accountHolderDto) {
@@ -100,7 +101,7 @@ public class HoldersService {
 
 
     public AccountDto createSavingAccount(BigDecimal amount) {
-        if (amount.intValueExact()<100) throw new EspecificException("Minimum amount: 100");
+        if (amount.intValueExact()<1000) throw new EspecificException("Minimum amount: 1000");
         var accountHolder = getLoginUser();
         var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
@@ -158,19 +159,25 @@ public class HoldersService {
         return AccountDto.fromAccount(creditAccount);
     }
 
-    public AccountDto withdraw(BigDecimal amount) {
+    public TransactionDto withdraw(BigDecimal amount) {
         User accountHolder = getLoginUser();
         var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
-        var availableAmount = checkingAccount.getBalance().getAmount().doubleValue();
 
-        if(availableAmount>amount.doubleValue()){
-            checkingAccount.getBalance().decreaseAmount(amount);
-            transactionUtils.registerWithdraw(checkingAccount,amount);
-        }else {
-            throw new EspecificException("You don't have founds.");
+        accountUtils.checkAccountNotFreezed(checkingAccount);
+        accountUtils.checkFinalBalance(checkingAccount,amount);
+
+        if (fraudDetectionUtils.verifyRecurrentOperations(checkingAccount)){
+            checkingAccount.setStatus(Status.FREEZE);
+            accountRepository.save(checkingAccount);
+            throw new EspecificException("FRAUD DETECTED! Account Froze. Please contact bank.");
         }
-        return AccountDto.fromAccount(checkingAccount);
+
+        //fraudDetectionUtils.verifyExpensiveOperation(checkingAccount,amount);
+
+        checkingAccount.getBalance().decreaseAmount(amount);
+        accountRepository.save(checkingAccount);
+        return TransactionDto.fromTransaction(transactionUtils.registerWithdraw(checkingAccount,amount));
     }
 
 
@@ -262,6 +269,69 @@ public class HoldersService {
             toAccount.get().getBalance().increaseAmount(amount);
             transactionUtils.registerTransferFromThirdParty(toAccount.get(), amount, Settings.getBANK_NAME(),((AccountHolder) accountHolder).getFirstName());
         }
+        return TransactionDto.fromTransaction(transaction);
+    }
+
+    public TransactionDto depositSavingAccount(String account, BigDecimal amount) {
+        var accountHolder = getLoginUser();
+        Account savingAccount = savingAccountRepository.findSavingAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account not found."));
+        accountUtils.getAndVerifyAccount(account,accountHolder);
+        savingAccount.getBalance().increaseAmount(amount);
+        accountRepository.save(savingAccount);
+        // Register new SavingAccount
+        return TransactionDto.fromTransaction(transactionUtils.registerDepositSavingAccount(savingAccount, amount));
+
+    }
+
+    public TransactionDto depositSavingAccountFromChecking(String account, BigDecimal amount) {
+        var accountHolder = getLoginUser();
+        var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
+                orElseThrow(() -> new EspecificException("The user doesn't have Checking Account."));
+        var balance = checkingAccount.getBalance().getAmount().doubleValue();
+        if (balance < amount.doubleValue()) {
+            throw new EspecificException("Account doesn't have founds.");
+        }
+        Account savingAccount = savingAccountRepository.findSavingAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account not found."));
+        accountUtils.getAndVerifyAccount(account,accountHolder);
+        savingAccount.getBalance().increaseAmount(amount);
+        accountRepository.save(savingAccount);
+        // Register new SavingAccount
+        var transaction = transactionUtils.registerDepositSavingAccount(savingAccount, amount);
+        // Register less balance in CheckingAccount
+        transactionUtils.fromCheckingtoSaving(checkingAccount, amount, savingAccount);
+        // Update new balance in checkingAccount
+        checkingAccount.getBalance().decreaseAmount(amount);
+        accountRepository.save(checkingAccount);
+        return TransactionDto.fromTransaction(transaction);
+    }
+
+    public TransactionDto withdrawSavingAccount(String account, BigDecimal amount) {
+        var accountHolder = getLoginUser();
+        SavingAccount savingAccount = savingAccountRepository.findSavingAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account not found."));
+        accountUtils.getAndVerifyAccount(account,accountHolder);
+        accountUtils.checkFinalBalance(savingAccount,amount);
+        accountUtils.checkMinimumBalance(savingAccount,amount);
+
+        var transaction = new Transaction();
+
+        if (accountUtils.checkFinalBalanceZero(savingAccount,amount)){
+            savingAccount.getBalance().decreaseAmount(amount);
+            savingAccount.setStatus(Status.CLOSED);
+            transaction = transactionUtils.registerWithdraw(savingAccount,amount);
+        } else if(savingAccount.getBalance().getAmount().subtract(amount).doubleValue() <
+                    savingAccount.getMinimumBalance().doubleValue()) {
+            savingAccount.getBalance().decreaseAmount(savingAccount.getPenaltyFee().getPenaltyAmount());
+            transactionUtils.registerPenalty(savingAccount, "minimum balance exceed");
+            savingAccount.getBalance().decreaseAmount(amount);
+            transaction = transactionUtils.registerWithdraw(savingAccount, amount);
+        } else{
+            savingAccount.getBalance().decreaseAmount(amount);
+            transaction = transactionUtils.registerWithdraw(savingAccount,amount);
+        }
+
         return TransactionDto.fromTransaction(transaction);
     }
 }

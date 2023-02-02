@@ -25,7 +25,6 @@ import com.ironhack.ironbank.service.utils.TransactionUtils;
 import com.ironhack.ironbank.service.utils.UserUtils;
 import com.ironhack.ironbank.service.utils.Utils;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Check;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -376,7 +375,7 @@ public class AdminService {
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
 
         var balance = checkingAccount.getBalance().getAmount().doubleValue();
-        accountUtils.cehckFinalBalance(checkingAccount,amount);
+        accountUtils.checkFinalBalance(checkingAccount,amount);
 
         Account accountCreated = new SavingAccount(accountHolder);
         accountCreated.getBalance().increaseAmount(amount);
