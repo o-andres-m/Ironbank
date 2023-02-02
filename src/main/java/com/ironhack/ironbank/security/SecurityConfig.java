@@ -32,9 +32,9 @@ public class SecurityConfig {
 
                 // Admin ENDPOINTS (any method)
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                //.requestMatchers("/admin/**").permitAll()
 
                 // AccountHolder ENDPOINTS
-
 
                 // ThirdParty ENDPOINTS (any method)
                 .requestMatchers("/thirdparty/account**").hasRole("THIRDPARTY")
@@ -43,6 +43,10 @@ public class SecurityConfig {
                 // Public ENDPOINTS (any method)
                 .requestMatchers("/holders/register", "/thirdparty/register").permitAll()
                 .requestMatchers("/thirdparty/chargeservice","/thirdparty/transfer" ).permitAll()
+
+                // Auto ENDPOINTS (FreeAccess)
+                .requestMatchers("/auto/**").permitAll()
+
 
                 .requestMatchers(HttpMethod.POST,"/holders/create/accounts/**").hasRole("ACCOUNTHOLDER")
 

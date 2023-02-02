@@ -9,12 +9,10 @@ import com.ironhack.ironbank.dto.users.ThirdPartyDto;
 import com.ironhack.ironbank.dto.users.AccountHolderDtoResponse;
 import com.ironhack.ironbank.dto.users.AdminDtoResponse;
 import com.ironhack.ironbank.dto.users.ThirdPartyDtoResponse;
-import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.service.AdminService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.PackagePrivate;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
