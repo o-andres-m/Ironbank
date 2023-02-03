@@ -1,6 +1,5 @@
 # IronBank :bank:
 
-#### Developed by Andres
 
 IronBank is a full backend software to manage a Bank System.
 This software is developed in Java 17, with Maven and SpringBoot 3.0.1 framework.
@@ -309,3 +308,7 @@ Return a Json with the information of a new User.
 
 
 These endpoints are with public access, but it's only used for applying automatic interests or maintenance.
+
+---
+
+#### Developed by [Andres](https://github.com/o-andres-m) 
