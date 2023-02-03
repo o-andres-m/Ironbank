@@ -121,7 +121,6 @@ public class AdminController {
         return adminService.desactivateUser(id);
     }
 
-
     @DeleteMapping("/user/{id}")
     public String deleteUser(@PathVariable Long id){
         return adminService.deleteUser(id);
@@ -163,9 +162,8 @@ public class AdminController {
     }
 
     /**
-     * Penalty, Interests, MonthlyMaintenance
+     * Admin to Accounts: Penalty, Interests, MonthlyMaintenance
      */
-
     @PutMapping("/accounts/penalty/{account}")
     public TransactionDto penaltyAccount(@PathVariable String account){
         return adminService.penaltyAccount(account);
@@ -191,6 +189,9 @@ public class AdminController {
         return adminService.debitCreditCard();
     }
 
+    /**
+     * Admin to Accounts: Create Accounts to AccountHolder.
+     */
     @PostMapping("/accounts/create/checking/{id}")
     public AccountDto createChecking(@PathVariable Long id){
         return adminService.createChecking(id);

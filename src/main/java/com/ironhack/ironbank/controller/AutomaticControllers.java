@@ -1,6 +1,5 @@
 package com.ironhack.ironbank.controller;
 
-import com.ironhack.ironbank.dto.transaction.TransactionDto;
 import com.ironhack.ironbank.service.AdminService;
 import com.ironhack.ironbank.setting.Settings;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/auto")
