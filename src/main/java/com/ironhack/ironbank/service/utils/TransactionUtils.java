@@ -63,13 +63,13 @@ public class TransactionUtils {
         transactionRepository.save(transaction);
     }
 
-    public void registerCreditBuy(Account account, BigDecimal amount, String store) {
+    public Transaction registerCreditBuy(Account account, BigDecimal amount, String store) {
         var transaction = new Transaction();
         transaction.setAccount(account);
         transaction.setAmount(new Money(amount));
         transaction.setTransactionType(TransactionType.PAY_WITH_CREDIT_CARD);
         transaction.setObservations("Payment at "+store);
-        transactionRepository.save(transaction);
+        return transactionRepository.save(transaction);
     }
 
     public Transaction registerChargeService(Account account, BigDecimal amount, String company){

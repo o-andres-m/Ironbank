@@ -106,8 +106,7 @@ public class AccountHolderController {
      * Account Functions: Withdraw
      */
 
-    @PutMapping("/withdraw")
-    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/withdraw")
     public TransactionDto withdraw(@RequestParam BigDecimal amount){
         return  holdersService.withdraw(amount);
     }
@@ -124,7 +123,7 @@ public class AccountHolderController {
 
     @PutMapping("/buywithcredit")
     @ResponseStatus(HttpStatus.OK)
-    public AccountDto buyWithCredit(@RequestParam BigDecimal amount,
+    public TransactionDto buyWithCredit(@RequestParam BigDecimal amount,
                                     @RequestHeader(name = "store") String store){
         return  holdersService.buyWithCredit(amount, store);
     }

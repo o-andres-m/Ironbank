@@ -7,6 +7,7 @@ import com.ironhack.ironbank.exception.EspecificException;
 import com.ironhack.ironbank.model.defaults.Address;
 import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.entities.accounts.CheckingAccount;
+import com.ironhack.ironbank.model.entities.accounts.CreditCardAccount;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.users.Admin;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
@@ -39,6 +40,8 @@ public class AccountUtils {
     private final AccountRepository accountRepository;
 
     private final AccountHolderRepository accountHolderRepository;
+
+    private final TransactionUtils transactionUtils;
 
 
     /**
@@ -164,4 +167,20 @@ public class AccountUtils {
             throw new EspecificException("User have already one Checking Account");
         }
     }
+
+    public void checkCreditLimit(CreditCardAccount creditAccount, BigDecimal amount) {
+        var limit = creditAccount.getCreditLimit().doubleValue();
+        var creditAmount = creditAccount.getBalance().getAmount().doubleValue();
+        if(limit - creditAmount - amount.doubleValue()<0)
+            throw new EspecificException("Credit Card doesn't have credit limit.");
+    }
+
+    public void verifyAccountIsFromThisBank(String account, BigDecimal amount, AccountHolder accountHolder) {
+        var toAccount = accountRepository.findAccountByNumber(account);
+        if(toAccount.isPresent()){
+            toAccount.get().getBalance().increaseAmount(amount);
+            transactionUtils.registerTransferFromThirdParty(toAccount.get(), amount, Settings.getBANK_NAME(), accountHolder.getFirstName());
+        }
+    }
+
 }
