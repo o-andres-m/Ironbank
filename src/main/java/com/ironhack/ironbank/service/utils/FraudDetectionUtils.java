@@ -26,11 +26,13 @@ public class FraudDetectionUtils {
 
     public void verifyRecurrentOperations(Account account) {
         var lastTransaction = transactionRepository.findLastTransactionByAccountId(account.getId());
-        var duration = Duration.between(lastTransaction.getDate(),Instant.now());
-        if(duration.getSeconds() < 1){
-            account.setStatus(Status.FREEZE);
-            accountRepository.save(account);
-            throw new EspecificException("¡FRAUD DETECTED! Please go to the bank to activate account.");
+        if (lastTransaction != null) {
+            var duration = Duration.between(lastTransaction.getDate(), Instant.now());
+            if (duration.getSeconds() < 2) {
+                account.setStatus(Status.FREEZE);
+                accountRepository.save(account);
+                throw new EspecificException("¡FRAUD DETECTED! Please go to the bank to activate account.");
+            }
         }
     }
 
@@ -38,27 +40,29 @@ public class FraudDetectionUtils {
         var transactionList = transactionRepository.findTransactionsByAccount_NumberOrderByDateDesc(account.getNumber());
         var maxValuesList = new ArrayList<Double>();
         var maxValueIn24hs = (double) 0;
-        for (int i = 0; i < transactionList.size(); i++) {
-            for (int j = 0; j < transactionList.size(); j++) {
-                if(transactionList.get(i).getDate()
-                        .truncatedTo(ChronoUnit.DAYS)
-                        .equals(transactionList.get(j).getDate()
-                                .truncatedTo(ChronoUnit.DAYS)) &&
-                    !transactionList.get(i).getDate().truncatedTo(ChronoUnit.DAYS)
-                            .equals(Instant.now().truncatedTo(ChronoUnit.DAYS))){
-                    if (transactionList.get(j).getAmount().getAmount().signum()<0)
-                        maxValueIn24hs = maxValueIn24hs + transactionList.get(j).getAmount().getAmount().doubleValue();
+        if (transactionList.size() != 0) {
+            for (int i = 0; i < transactionList.size(); i++) {
+                for (int j = 0; j < transactionList.size(); j++) {
+                    if (transactionList.get(i).getDate()
+                            .truncatedTo(ChronoUnit.DAYS)
+                            .equals(transactionList.get(j).getDate()
+                                    .truncatedTo(ChronoUnit.DAYS)) &&
+                            !transactionList.get(i).getDate().truncatedTo(ChronoUnit.DAYS)
+                                    .equals(Instant.now().truncatedTo(ChronoUnit.DAYS))) {
+                        if (transactionList.get(j).getAmount().getAmount().signum() < 0)
+                            maxValueIn24hs = maxValueIn24hs + transactionList.get(j).getAmount().getAmount().doubleValue();
+                    }
                 }
+                maxValuesList.add(maxValueIn24hs);
+                maxValueIn24hs = 0;
             }
-            maxValuesList.add(maxValueIn24hs);
-            maxValueIn24hs=0;
-        }
-        Collections.sort(maxValuesList);
-        if (maxValuesList.size()>0) {
-            if(maxValuesList.get(0)*(-1)*1.5 < amount.doubleValue()){
-                account.setStatus(Status.FREEZE);
-                accountRepository.save(account);
-                throw new EspecificException("¡FRAUD DETECTED! Please go to the bank to activate account.");
+            Collections.sort(maxValuesList);
+            if (maxValuesList.size() > 0) {
+                if (maxValuesList.get(0) * (-1) * 1.5 < amount.doubleValue() && amount.doubleValue() > 1000 ) {
+                    account.setStatus(Status.FREEZE);
+                    accountRepository.save(account);
+                    throw new EspecificException("¡FRAUD DETECTED! Please go to the bank to activate account.");
+                }
             }
         }
     }

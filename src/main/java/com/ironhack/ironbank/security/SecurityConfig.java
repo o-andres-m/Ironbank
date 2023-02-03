@@ -28,13 +28,17 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeHttpRequests()
 
-                // Admin ENDPOINTS (any method)
+                // Admin ENDPOINTS
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                //.requestMatchers("/admin/**").permitAll()
 
                 // AccountHolder ENDPOINTS
+                    // Public
+                .requestMatchers("/holders/register", "/holders/forgotpassword").permitAll()
+                    // Login
+                .requestMatchers("/holders/**").hasRole("ACCOUNTHOLDER")
 
-                // ThirdParty ENDPOINTS (any method)
+
+                // ThirdParty ENDPOINTS
                 .requestMatchers("/thirdparty/account**").hasRole("THIRDPARTY")
 
 
@@ -46,7 +50,6 @@ public class SecurityConfig {
                 .requestMatchers("/auto/**").permitAll()
 
 
-                .requestMatchers(HttpMethod.POST,"/holders/create/accounts/**").hasRole("ACCOUNTHOLDER")
 
                 .anyRequest()
                 .authenticated()

@@ -42,8 +42,8 @@ public abstract class Account {
     @JoinColumn(name = "secondaryOwner_id")
     private AccountHolder secondaryOwner;
 
-    //TODO: Pasarlo a ENUM STRING
-    //@Enumerated(EnumType.STRING)
+
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @OneToMany (mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)

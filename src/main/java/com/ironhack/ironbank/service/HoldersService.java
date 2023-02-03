@@ -81,13 +81,55 @@ public class HoldersService {
             }
         }
 
+    public AccountHolderInfoDto viewPersonalInfo() {
+        User accountHolder = getLoginUser();
+        return AccountHolderInfoDto.fromAccountHolder((AccountHolder) userRepository.findByUsername(accountHolder.getUsername()).get());
+    }
+
+    public AccountHolderDtoResponse update(Optional<String> username, Optional<String> password, Optional<String> address, Optional<String> phone, Optional<String> email) {
+        username.ifPresent(accountUtils::verifyUserExists);
+        var accountHolder = (AccountHolder) getLoginUser();
+        username.ifPresent(accountHolder::setUsername);
+        password.ifPresent(s -> accountHolder.setPassword(passwordEncoder.encode(s)));
+        var accountHolderAddress = accountHolder.getAddress();
+        address.ifPresent(accountHolderAddress::setAddress);
+        phone.ifPresent(accountHolderAddress::setPhone);
+        email.ifPresent(accountHolderAddress::setEmail);
+        accountHolder.setAddress(accountHolderAddress);
+        return AccountHolderDtoResponse.fromAccountHolder(userRepository.save(accountHolder));
+    }
+
+    public String forgotPassword(String nif, String email) {
+        var accountHolder = accountHolderRepository.findAccountHolderByNif(nif).orElseThrow(
+                ()-> new EspecificException("Nif not registered."));
+        if(accountHolder.getAddress().getEmail().equals(email)){
+            return "An email has been sent to "+email+", please follow instructions to restore your password.";
+        }else{
+            return "Nif and Email doesn't match, please go to the Bank to reset your password.";
+        }
+    }
+
+    public AccountDto setSecondaryOwner(String account, String secondaryOwnerNif) {
+        User accountHolder = getLoginUser();
+        var accountToUpdate= accountUtils.getAndVerifyAccount(account, accountHolder);
+        if (secondaryOwnerNif.equals("0")){
+            accountToUpdate.setSecondaryOwner(null);
+        }else {
+            var secondaryOwner = userUtils.getUserByNif(secondaryOwnerNif);
+            accountToUpdate.setSecondaryOwner(secondaryOwner);
+        }
+        return AccountDto.fromAccount(accountRepository.save(accountToUpdate));
+    }
+
+    /**
+     * ACCOUNTS
+     */
+
     public AccountDto createCheckingAccount() {
         User accountHolder = getLoginUser();
 
         var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder);
-        if (checkingAccount.isPresent()){
-            throw new EspecificException("User have already one Checking Account");
-        }
+        accountUtils.checkUserDoesntHaveCheckingAccount(checkingAccount);
 
         if (Utils.isOver24(Utils.calculateAge(((AccountHolder) accountHolder).getDateOfBirth()))) {
             var accountCreated = new CheckingAccount((AccountHolder) accountHolder);
@@ -100,27 +142,29 @@ public class HoldersService {
         }
     }
 
-    public AccountDto createSavingAccount(BigDecimal amount) {
+    public TransactionDto createSavingAccount(BigDecimal amount) {
         if (amount.intValueExact()<1000) throw new EspecificException("Minimum amount: 1000");
         var accountHolder = getLoginUser();
-        var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
-                orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
-        var balance = checkingAccount.getBalance().getAmount().doubleValue();
-        if(balance<amount.doubleValue()){
-            throw new EspecificException("Account doesn't have founds.");
-        }else{
-                Account accountCreated = new SavingAccount((AccountHolder) accountHolder);
-                accountCreated.getBalance().increaseAmount(amount);
-                accountRepository.save(accountCreated);
-                // Register new SavingAccount
-                transactionUtils.registerNewSavingAccount(accountCreated,amount);
-                // Register less balance in CheckingAccount
-                transactionUtils.fromCheckingtoSaving(checkingAccount,amount,accountCreated);
-                // Update new balance in checkingAccount
-                checkingAccount.getBalance().decreaseAmount(amount);
-                accountRepository.save(checkingAccount);
-                return AccountDto.fromAccount(accountCreated);
-        }
+        var checkingAccount = accountUtils.checkUserHaveCheckingAccount(accountHolder);
+
+        accountUtils.checkAccountNotFreezed(checkingAccount);
+        accountUtils.checkFinalBalance(checkingAccount,amount);
+        fraudDetectionUtils.verifyRecurrentOperations(checkingAccount);
+        fraudDetectionUtils.verifyExpensiveOperation(checkingAccount,amount);
+
+        Account accountCreated = new SavingAccount((AccountHolder) accountHolder);
+        accountCreated.getBalance().increaseAmount(amount);
+        accountRepository.save(accountCreated);
+
+        // Register new SavingAccount
+        var transaction = transactionUtils.registerNewSavingAccount(accountCreated,amount);
+        // Register less balance in CheckingAccount
+        transactionUtils.fromCheckingtoSaving(checkingAccount,amount,accountCreated);
+        // Update new balance in checkingAccount
+        checkingAccount.getBalance().decreaseAmount(amount);
+        accountRepository.save(checkingAccount);
+        return TransactionDto.fromTransaction(transaction);
+
     }
 
     public AccountDto createCreditAccount() {
@@ -132,13 +176,44 @@ public class HoldersService {
     }
 
 
-    public AccountDto depositInCheckingAccount(BigDecimal amount) {
+    public TransactionDto depositInCheckingAccount(BigDecimal amount) {
         User accountHolder = getLoginUser();
         var checkingAccount = accountUtils.checkUserHaveCheckingAccount(accountHolder);
         checkingAccount.getBalance().increaseAmount(amount);
-        transactionUtils.registerDeposit(checkingAccount,amount);
         accountRepository.save(checkingAccount);
-        return AccountDto.fromAccount(checkingAccount);
+        return TransactionDto.fromTransaction(transactionUtils.registerDeposit(checkingAccount,amount));
+    }
+
+    public TransactionDto depositSavingAccount(String account, BigDecimal amount) {
+        var accountHolder = getLoginUser();
+        Account savingAccount = savingAccountRepository.findSavingAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account not found."));
+        accountUtils.getAndVerifyAccount(account,accountHolder);
+        savingAccount.getBalance().increaseAmount(amount);
+        accountRepository.save(savingAccount);
+        return TransactionDto.fromTransaction(transactionUtils.registerDepositSavingAccount(savingAccount, amount));
+    }
+
+    public TransactionDto depositSavingAccountFromChecking(String account, BigDecimal amount) {
+        var accountHolder = getLoginUser();
+        var checkingAccount = accountUtils.findCheckingAccountByAccountHolder((AccountHolder) accountHolder);
+        accountUtils.getAndVerifyAccount(account,accountHolder);
+        accountUtils.checkFinalBalance(checkingAccount,amount);
+        fraudDetectionUtils.verifyExpensiveOperation(checkingAccount, amount);
+        fraudDetectionUtils.verifyRecurrentOperations(checkingAccount);
+
+        Account savingAccount = savingAccountRepository.findSavingAccountByNumber(account).orElseThrow(
+                ()-> new EspecificException("Account not found."));
+        savingAccount.getBalance().increaseAmount(amount);
+        accountRepository.save(savingAccount);
+        // Register new SavingAccount
+        var transaction = transactionUtils.registerDepositSavingAccount(savingAccount, amount);
+        // Register less balance in CheckingAccount
+        transactionUtils.fromCheckingtoSaving(checkingAccount, amount, savingAccount);
+        // Update new balance in checkingAccount
+        checkingAccount.getBalance().decreaseAmount(amount);
+        accountRepository.save(checkingAccount);
+        return TransactionDto.fromTransaction(transaction);
     }
 
     public AccountDto buyWithCredit(BigDecimal amount,String store) {
@@ -201,45 +276,10 @@ public class HoldersService {
         return transacionDtoList;
     }
 
-    public AccountHolderInfoDto viewPersonalInfo() {
-        User accountHolder = getLoginUser();
-        return AccountHolderInfoDto.fromAccountHolder((AccountHolder) userRepository.findByUsername(accountHolder.getUsername()).get());
-    }
 
-    public AccountHolderDtoResponse update(Optional<String> username, Optional<String> password, Optional<String> address, Optional<String> phone, Optional<String> email) {
-        username.ifPresent(accountUtils::verifyUserExists);
-        var accountHolder = (AccountHolder) getLoginUser();
-        username.ifPresent(accountHolder::setUsername);
-        password.ifPresent(s -> accountHolder.setPassword(passwordEncoder.encode(s)));
-        var accountHolderAddress = accountHolder.getAddress();
-        address.ifPresent(accountHolderAddress::setAddress);
-        phone.ifPresent(accountHolderAddress::setPhone);
-        email.ifPresent(accountHolderAddress::setEmail);
-        accountHolder.setAddress(accountHolderAddress);
-        return AccountHolderDtoResponse.fromAccountHolder(userRepository.save(accountHolder));
-    }
 
-    public AccountDto setSecondaryOwner(String account, String secondaryOwnerNif) {
-        User accountHolder = getLoginUser();
-        var accountToUpdate= accountUtils.getAndVerifyAccount(account, accountHolder);
-        if (secondaryOwnerNif.equals(0)){
-            accountToUpdate.setSecondaryOwner(null);
-        }else {
-            var secondaryOwner = userUtils.getUserByNif(secondaryOwnerNif);
-                accountToUpdate.setSecondaryOwner(secondaryOwner);
-        }
-        return AccountDto.fromAccount(accountRepository.save(accountToUpdate));
-    }
 
-    public String forgotPassword(String nif, String email) {
-        var accountHolder = accountHolderRepository.findAccountHolderByNif(nif).orElseThrow(
-                ()-> new EspecificException("Nif not registered."));
-        if(accountHolder.getAddress().getEmail().equals(email)){
-            return "An email has been sent to "+email+", please follow instructions to restore your password.";
-        }else{
-            return "Nif and Email doesn't match, please go to the Bank to reset your password.";
-        }
-    }
+
 
     public TransactionDto trasnferToAccount(String account, BigDecimal amount) {
         User accountHolder = getLoginUser();
@@ -261,40 +301,9 @@ public class HoldersService {
         return TransactionDto.fromTransaction(transaction);
     }
 
-    public TransactionDto depositSavingAccount(String account, BigDecimal amount) {
-        var accountHolder = getLoginUser();
-        Account savingAccount = savingAccountRepository.findSavingAccountByNumber(account).orElseThrow(
-                ()-> new EspecificException("Account not found."));
-        accountUtils.getAndVerifyAccount(account,accountHolder);
-        savingAccount.getBalance().increaseAmount(amount);
-        accountRepository.save(savingAccount);
-        // Register new SavingAccount
-        return TransactionDto.fromTransaction(transactionUtils.registerDepositSavingAccount(savingAccount, amount));
 
-    }
 
-    public TransactionDto depositSavingAccountFromChecking(String account, BigDecimal amount) {
-        var accountHolder = getLoginUser();
-        var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
-                orElseThrow(() -> new EspecificException("The user doesn't have Checking Account."));
-        var balance = checkingAccount.getBalance().getAmount().doubleValue();
-        if (balance < amount.doubleValue()) {
-            throw new EspecificException("Account doesn't have founds.");
-        }
-        Account savingAccount = savingAccountRepository.findSavingAccountByNumber(account).orElseThrow(
-                ()-> new EspecificException("Account not found."));
-        accountUtils.getAndVerifyAccount(account,accountHolder);
-        savingAccount.getBalance().increaseAmount(amount);
-        accountRepository.save(savingAccount);
-        // Register new SavingAccount
-        var transaction = transactionUtils.registerDepositSavingAccount(savingAccount, amount);
-        // Register less balance in CheckingAccount
-        transactionUtils.fromCheckingtoSaving(checkingAccount, amount, savingAccount);
-        // Update new balance in checkingAccount
-        checkingAccount.getBalance().decreaseAmount(amount);
-        accountRepository.save(checkingAccount);
-        return TransactionDto.fromTransaction(transaction);
-    }
+
 
     public TransactionDto withdrawSavingAccount(String account, BigDecimal amount) {
         var accountHolder = getLoginUser();

@@ -72,7 +72,7 @@ public class AccountHolderController {
 
     @PostMapping("/create/saving")
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountDto createCheckingAccount(@RequestParam BigDecimal amount){
+    public TransactionDto createCheckingAccount(@RequestParam BigDecimal amount){
         return holdersService.createSavingAccount(amount);
     }
 
@@ -87,7 +87,7 @@ public class AccountHolderController {
      */
     @PutMapping("/deposit")
     @ResponseStatus(HttpStatus.OK)
-    public AccountDto depositInCheckingAccount(@RequestParam BigDecimal amount){
+    public TransactionDto depositInCheckingAccount(@RequestParam BigDecimal amount){
         return  holdersService.depositInCheckingAccount(amount);
     }
 
@@ -111,6 +111,7 @@ public class AccountHolderController {
     public TransactionDto withdraw(@RequestParam BigDecimal amount){
         return  holdersService.withdraw(amount);
     }
+
     @GetMapping("/withdraw/saving/{account}")
     public TransactionDto withdrawSavingAccount(@RequestParam BigDecimal amount,
                                             @PathVariable String account){

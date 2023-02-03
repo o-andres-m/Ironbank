@@ -18,13 +18,13 @@ public class TransactionUtils {
 
     private final TransactionRepository transactionRepository;
 
-    public void registerDeposit(Account account, BigDecimal amount){
+    public Transaction registerDeposit(Account account, BigDecimal amount){
         var transaction = new Transaction();
         transaction.setAccount(account);
         transaction.setAmount(new Money(amount));
         transaction.setTransactionType(TransactionType.DEPOSIT);
         transaction.setObservations("Owner Deposit");
-        transactionRepository.save(transaction);
+        return transactionRepository.save(transaction);
     }
 
     public Transaction registerWithdraw(Account account, BigDecimal amount){
@@ -36,13 +36,13 @@ public class TransactionUtils {
         return transactionRepository.save(transaction);
     }
 
-    public void registerNewSavingAccount(Account account, BigDecimal amount) {
+    public Transaction registerNewSavingAccount(Account account, BigDecimal amount) {
         var transaction = new Transaction();
         transaction.setAccount(account);
         transaction.setAmount(new Money(amount));
         transaction.setTransactionType(TransactionType.DEPOSIT);
         transaction.setObservations("Create New Saving Account");
-        transactionRepository.save(transaction);
+        return transactionRepository.save(transaction);
     }
 
     public Transaction registerDepositSavingAccount(Account account, BigDecimal amount) {

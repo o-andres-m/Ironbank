@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -156,5 +157,11 @@ public class AccountUtils {
     public CheckingAccount checkUserHaveCheckingAccount(User accountHolder) {
         return checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
+    }
+
+    public void checkUserDoesntHaveCheckingAccount(Optional<CheckingAccount> checkingAccount) {
+        if (checkingAccount.isPresent()){
+            throw new EspecificException("User have already one Checking Account");
+        }
     }
 }
