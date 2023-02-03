@@ -22,7 +22,6 @@ public class SavingAccount extends Account {
     @Embedded
     private Interests interests;
 
-
     public SavingAccount(AccountHolder accountHolder) {
         super(accountHolder);
         this.minimumBalance = BigDecimal.valueOf(1000);
@@ -34,5 +33,4 @@ public class SavingAccount extends Account {
         if (value<0.0025) value=0.0025;
         this.interests.setValue(value);
     }
-
 }

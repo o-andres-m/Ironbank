@@ -11,7 +11,6 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction,String> {
 
-
     List<Transaction> findTransactionsByAccount_NumberOrderByDateDesc(String accountNumber);
 
     @Query(value = "SELECT * FROM transactions WHERE account_id =:accountId ORDER BY date DESC LIMIT 1", nativeQuery = true)

@@ -30,7 +30,4 @@ public class AccountListDto {
         }
         return accountListDto;
     }
-
-
-
 }

@@ -38,5 +38,4 @@ public class ThirdParty extends User {
 
         return thirdParty;
     }
-
 }

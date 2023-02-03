@@ -31,7 +31,6 @@ public class AdminDto {
     @Email
     private String email;
 
-
     public static AdminDto fromAdmin(Admin admin) {
         var adminDto = new AdminDto();
         adminDto.setUsername(admin.getUsername());

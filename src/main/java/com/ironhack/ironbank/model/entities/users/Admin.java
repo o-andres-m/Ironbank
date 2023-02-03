@@ -14,6 +14,4 @@ public class Admin extends User {
     private String lastName;
 
     private String email;
-
-
 }

@@ -15,9 +15,7 @@ import java.math.BigDecimal;
 @Table(name = "student_accounts")
 public class StudentAccount extends Account {
 
-
     public StudentAccount(AccountHolder accountHolder) {
         super(accountHolder);
     }
-
 }

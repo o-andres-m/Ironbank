@@ -22,8 +22,6 @@ public class ThirdPartyDtoResponse {
 
     private String phone;
 
-
-
     public static ThirdPartyDtoResponse fromThirdParty (ThirdParty thirdParty){
         var thirdPartyDtoResponse = new ThirdPartyDtoResponse();
         thirdPartyDtoResponse.setId(thirdParty.getId());
@@ -36,6 +34,4 @@ public class ThirdPartyDtoResponse {
 
         return thirdPartyDtoResponse;
     }
-
-
 }

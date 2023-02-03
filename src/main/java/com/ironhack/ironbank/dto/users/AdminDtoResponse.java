@@ -19,7 +19,6 @@ public class AdminDtoResponse {
 
     private String email;
 
-
     public static AdminDtoResponse fromAdmin(Admin admin) {
         var adminDtoResponse = new AdminDtoResponse();
         adminDtoResponse.setUsername(admin.getUsername());

@@ -22,5 +22,4 @@ public class UserUtils {
     public AccountHolder getUserByNif(String nif) {
         return userRepository.findAccountHolderByNif(nif).orElseThrow(()-> new EspecificException("User with NIF "+ nif +" not found."));
     }
-
 }

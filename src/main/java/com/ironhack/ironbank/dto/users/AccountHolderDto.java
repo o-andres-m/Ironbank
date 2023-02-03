@@ -48,7 +48,6 @@ public class AccountHolderDto {
     @NotBlank(message = "Phone required.")
     private String phone;
 
-
     public static AccountHolderDto fromAccountHolder(AccountHolder accountHolder){
         var accountHolderDto = new AccountHolderDto();
         accountHolderDto.setId(accountHolder.getId());

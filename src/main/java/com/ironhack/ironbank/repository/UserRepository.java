@@ -34,6 +34,5 @@ public interface UserRepository extends JpaRepository<User,Long> {
                                     @Param("companyName") String companyName,
                                     @Param("nif") String nif);
 
-
     Optional<AccountHolder> findAccountHolderByNif(String nif);
 }

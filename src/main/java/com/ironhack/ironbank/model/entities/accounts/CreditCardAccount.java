@@ -2,7 +2,6 @@ package com.ironhack.ironbank.model.entities.accounts;
 
 
 import com.ironhack.ironbank.model.defaults.Interests;
-import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -38,5 +37,4 @@ public class CreditCardAccount extends Account {
         if (value.intValueExact()>100000) value = BigDecimal.valueOf(100000);
         this.creditLimit = value;
     }
-
 }

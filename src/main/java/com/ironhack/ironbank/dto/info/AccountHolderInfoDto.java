@@ -32,7 +32,6 @@ public class AccountHolderInfoDto {
 
     private List<AccountListDto> accountList;
 
-
     public static AccountHolderInfoDto fromAccountHolder(AccountHolder accountHolder){
         var accountHolderDtoResponse = new AccountHolderInfoDto();
         accountHolderDtoResponse.setId(accountHolder.getId());

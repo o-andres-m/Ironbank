@@ -1,11 +1,6 @@
 package com.ironhack.ironbank.dto.account;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ironhack.ironbank.dto.users.AccountHolderDtoResponse;
-import com.ironhack.ironbank.model.defaults.Interests;
-import com.ironhack.ironbank.model.defaults.Money;
-import com.ironhack.ironbank.model.defaults.PenaltyFee;
-import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.entities.accounts.CheckingAccount;
 import com.ironhack.ironbank.model.entities.accounts.CreditCardAccount;
@@ -16,7 +11,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
 
 @Data
 @NoArgsConstructor

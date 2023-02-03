@@ -10,6 +10,5 @@ import java.util.Optional;
 @Repository
 public interface CreditCardAccountRepository extends JpaRepository<CreditCardAccount,Long> {
 
-
     Optional<CreditCardAccount> findCreditCardAccountByPrimaryOwner(AccountHolder primaryOwner);
 }

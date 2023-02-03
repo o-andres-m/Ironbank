@@ -28,7 +28,6 @@ public class AccountHolderDtoResponse {
 
     private String phone;
 
-
     public static AccountHolderDtoResponse fromAccountHolder(AccountHolder accountHolder){
         var accountHolderDtoResponse = new AccountHolderDtoResponse();
         accountHolderDtoResponse.setId(accountHolder.getId());

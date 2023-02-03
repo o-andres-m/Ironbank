@@ -1,7 +1,6 @@
 package com.ironhack.ironbank.model.entities.accounts;
 
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
-import com.ironhack.ironbank.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

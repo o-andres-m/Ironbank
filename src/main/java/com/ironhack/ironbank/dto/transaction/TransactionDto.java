@@ -24,7 +24,6 @@ public class TransactionDto {
 
     private String observations;
 
-
     public static TransactionDto fromTransaction(Transaction transaction) {
         var transactionDto = new TransactionDto();
         transactionDto.setTransactionId(transaction.getTransactionId());

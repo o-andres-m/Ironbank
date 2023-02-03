@@ -26,14 +26,9 @@ public class DataLoader {
     @EventListener(ApplicationReadyEvent.class)
     public void loadData(){
 
-
         log.info("Loading Data to Database....");
-
-
         var user1 = new User("admin",passwordEncoder.encode("admin"),"ROLE_ADMIN");
         userRepository.save(user1);
-
-
         log.info("Final Loading Data...");
 
     }

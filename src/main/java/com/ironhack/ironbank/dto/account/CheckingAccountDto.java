@@ -30,5 +30,4 @@ public class CheckingAccountDto {
 
     private PenaltyFee penaltyFee;
 
-
 }

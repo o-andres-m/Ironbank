@@ -37,8 +37,6 @@ public class ThirdPartyDto {
 
     private String phone;
 
-
-
     public static ThirdPartyDto fromThirdParty (ThirdParty thirdParty){
         var thirdPartyDto = new ThirdPartyDto();
         thirdPartyDto.setId(thirdParty.getId());
@@ -52,9 +50,5 @@ public class ThirdPartyDto {
         thirdPartyDto.setPhone(thirdParty.getAddress().getPhone());
 
         return thirdPartyDto;
-
-
     }
-
-
 }

@@ -12,6 +12,4 @@ public class TransferDto {
     private String toAccount;
 
     private BigDecimal amount;
-
-
 }
