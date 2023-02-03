@@ -152,4 +152,9 @@ public class AccountUtils {
     public void checkAccountNotFreezed(Account account) {
         if(account.getStatus().equals(Status.FREEZE)) throw new EspecificException("Account Freezed. Please contact Bank.");
     }
+
+    public CheckingAccount checkUserHaveCheckingAccount(User accountHolder) {
+        return checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
+                orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
+    }
 }

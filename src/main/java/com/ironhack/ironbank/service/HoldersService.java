@@ -55,8 +55,21 @@ public class HoldersService {
     private final PasswordEncoder passwordEncoder;
 
 
-    public AccountHolderDtoResponse register(AccountHolderDto accountHolderDto) {
+    /*
+    Method to get the account Holder
+     */
+    private User getLoginUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var accountHolder = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(()-> new UserNotFoundException(authentication.getName()));
+        return accountHolder;
+    }
 
+    /**
+     * START ACCOUNTHOLDERS LOGIC FOR ENDPOINTS
+     */
+
+    public AccountHolderDtoResponse register(AccountHolderDto accountHolderDto) {
         accountUtils.verifyUserExists(accountHolderDto.getUsername());
         accountUtils.verifyNifExists(accountHolderDto.getNif());
 
@@ -67,18 +80,6 @@ public class HoldersService {
             return AccountHolderDtoResponse.fromAccountHolder(userRepository.save(accountHolder));
             }
         }
-
-    /*
-    Method to get the account Holder
-     */
-
-    // TODO MOVER
-    private User getLoginUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        var accountHolder = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(()-> new UserNotFoundException(authentication.getName()));
-        return accountHolder;
-    }
 
     public AccountDto createCheckingAccount() {
         User accountHolder = getLoginUser();
@@ -98,7 +99,6 @@ public class HoldersService {
             return AccountDto.fromAccount(accountCreated);
         }
     }
-
 
     public AccountDto createSavingAccount(BigDecimal amount) {
         if (amount.intValueExact()<1000) throw new EspecificException("Minimum amount: 1000");
@@ -134,8 +134,7 @@ public class HoldersService {
 
     public AccountDto depositInCheckingAccount(BigDecimal amount) {
         User accountHolder = getLoginUser();
-        var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
-                orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
+        var checkingAccount = accountUtils.checkUserHaveCheckingAccount(accountHolder);
         checkingAccount.getBalance().increaseAmount(amount);
         transactionUtils.registerDeposit(checkingAccount,amount);
         accountRepository.save(checkingAccount);
@@ -161,19 +160,12 @@ public class HoldersService {
 
     public TransactionDto withdraw(BigDecimal amount) {
         User accountHolder = getLoginUser();
-        var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder).
-                orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
 
+        var checkingAccount = accountUtils.checkUserHaveCheckingAccount(accountHolder);
+        fraudDetectionUtils.verifyExpensiveOperation(checkingAccount,amount);
+        fraudDetectionUtils.verifyRecurrentOperations(checkingAccount);
         accountUtils.checkAccountNotFreezed(checkingAccount);
         accountUtils.checkFinalBalance(checkingAccount,amount);
-
-        if (fraudDetectionUtils.verifyRecurrentOperations(checkingAccount)){
-            checkingAccount.setStatus(Status.FREEZE);
-            accountRepository.save(checkingAccount);
-            throw new EspecificException("FRAUD DETECTED! Account Froze. Please contact bank.");
-        }
-
-        //fraudDetectionUtils.verifyExpensiveOperation(checkingAccount,amount);
 
         checkingAccount.getBalance().decreaseAmount(amount);
         accountRepository.save(checkingAccount);
