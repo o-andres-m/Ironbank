@@ -41,12 +41,12 @@ public class ThirdPartyService {
 
     private final FraudDetectionUtils fraudDetectionUtils;
 
-
-
+    /**
+     * START ACCOUNTHOLDERS LOGIC FOR ENDPOINTS
+     */
     public ThirdPartyDtoResponse createUser(ThirdPartyDto thirdPartyDto) {
-        var user = thirdPartyDto.getUsername();
-        accountUtils.verifyUserExists(user);
-
+        accountUtils.verifyUserExists(thirdPartyDto.getUsername());
+        accountUtils.verifyNifExists(thirdPartyDto.getNif());
         var thirdParty = accountUtils.createThirdParty(thirdPartyDto);
         //When thirdparty register himself, need to activate account.
         thirdParty.setIsAccountNonLocked(false);
@@ -92,26 +92,21 @@ public class ThirdPartyService {
 
 
     public TransactionDto chargeService(String company, String account, String secretKey, BigDecimal amount) {
+        var accountToCharge = accountUtils.getAccountByNumber(account);
 
-        var accountToCharge = accountRepository.findAccountByNumber(account).orElseThrow(
-                ()-> new EspecificException("Account doesn't exists."));
-        if (accountToCharge.getSecretKey().equals(secretKey)){
-            // TODO : Validar que no quede en negativo + el fraud detection
-            accountUtils.checkFinalBalance(accountToCharge,amount);
-            // TODO fraudDetectionUtils
-            accountToCharge.getBalance().decreaseAmount(amount);
-            accountRepository.save(accountToCharge);
+        accountUtils.verifyAccountAndSecretKey(accountToCharge,secretKey);
+        accountUtils.checkAccountNotFreezed(accountToCharge);
+        accountUtils.checkFinalBalance(accountToCharge,amount);
 
-            return TransactionDto.fromTransaction(transactionUtils.registerChargeService(accountToCharge,amount,company));
-        }else {
-            throw new EspecificException("Secret Key invalid.");
-        }
+        accountToCharge.getBalance().decreaseAmount(amount);
+        accountRepository.save(accountToCharge);
+        return TransactionDto.fromTransaction(transactionUtils.registerChargeService(accountToCharge,amount,company));
     }
 
     public TransactionDto transferToAccount(TransferDto transferDto, String bankName, String name) {
+        var accountToCredit = accountUtils.getAccountByNumber(transferDto.getToAccount());
+        accountUtils.checkAccountNotFreezed(accountToCredit);
 
-        var accountToCredit = accountRepository.findAccountByNumber(transferDto.getToAccount()).orElseThrow(
-                ()-> new EspecificException("Account doesn't exists."));
         accountToCredit.getBalance().increaseAmount(transferDto.getAmount());
         accountRepository.save(accountToCredit);
         return TransactionDto.fromTransaction(transactionUtils.registerTransferFromThirdParty(accountToCredit,transferDto.getAmount(),bankName,name));
@@ -121,16 +116,16 @@ public class ThirdPartyService {
     public TransactionDto debitService(String account, BigDecimal amount) {
         var thirdParty = (ThirdParty) getThirdParty();
 
-        var accountToCharge = accountRepository.findAccountByNumber(account).orElseThrow(
-                ()-> new EspecificException("Account doesn't exists."));
-        var foundAccount = accountMapRepository.findAccountMapByAccountNumber(account).orElseThrow(
+        var accountToCharge = accountUtils.getAccountByNumber(account);
+        accountMapRepository.findAccountMapByAccountNumber(account).orElseThrow(
                 ()-> new EspecificException("ThirdParty doesn't have registered the Account."));
-            // TODO : Validar que no quede en negativo + el fraud detection
-            accountUtils.checkFinalBalance(accountToCharge,amount);
-            // TODO fraudDetectionUtils
-            accountToCharge.getBalance().decreaseAmount(amount);
-            accountRepository.save(accountToCharge);
 
-            return TransactionDto.fromTransaction(transactionUtils.registerChargeService(accountToCharge,amount,thirdParty.getCompanyName()));
+        accountUtils.checkFinalBalance(accountToCharge,amount);
+        accountUtils.checkAccountNotFreezed(accountToCharge);
+
+        accountToCharge.getBalance().decreaseAmount(amount);
+        accountRepository.save(accountToCharge);
+
+        return TransactionDto.fromTransaction(transactionUtils.registerChargeService(accountToCharge,amount,thirdParty.getCompanyName()));
     }
 }

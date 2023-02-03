@@ -183,4 +183,8 @@ public class AccountUtils {
         }
     }
 
+    public void verifyAccountAndSecretKey(Account accountToCharge, String secretKey) {
+        if(!accountToCharge.getSecretKey().equals(secretKey))
+            throw new EspecificException("SecretKey Invalid.");
+    }
 }
