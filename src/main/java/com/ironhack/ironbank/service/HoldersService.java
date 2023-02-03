@@ -190,8 +190,6 @@ public class HoldersService {
         return AccountDto.fromAccount(accountFound);
     }
 
-
-
     public List<TransactionDto> viewTransactions(String account) {
         User accountHolder = getLoginUser();
         accountUtils.getAndVerifyAccount(account, accountHolder);
@@ -220,7 +218,6 @@ public class HoldersService {
         accountHolder.setAddress(accountHolderAddress);
         return AccountHolderDtoResponse.fromAccountHolder(userRepository.save(accountHolder));
     }
-
 
     public AccountDto setSecondaryOwner(String account, String secondaryOwnerNif) {
         User accountHolder = getLoginUser();

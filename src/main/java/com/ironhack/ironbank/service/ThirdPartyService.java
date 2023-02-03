@@ -44,7 +44,6 @@ public class ThirdPartyService {
 
 
     public ThirdPartyDtoResponse createUser(ThirdPartyDto thirdPartyDto) {
-
         var user = thirdPartyDto.getUsername();
         accountUtils.verifyUserExists(user);
 
@@ -53,8 +52,6 @@ public class ThirdPartyService {
         thirdParty.setIsAccountNonLocked(false);
         return ThirdPartyDtoResponse.fromThirdParty(userRepository.save(thirdParty));
     }
-
-
 
     public AccountMapDto registerAccount(String account, String secretkey) {
         var thirdParty = getThirdParty();
@@ -135,6 +132,5 @@ public class ThirdPartyService {
             accountRepository.save(accountToCharge);
 
             return TransactionDto.fromTransaction(transactionUtils.registerChargeService(accountToCharge,amount,thirdParty.getCompanyName()));
-
     }
 }

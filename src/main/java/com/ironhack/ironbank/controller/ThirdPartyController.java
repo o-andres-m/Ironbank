@@ -21,13 +21,17 @@ public class ThirdPartyController {
 
     private final ThirdPartyService thirdPartyService;
 
-
+    /**
+     * Register ThirdParty (USER INACTIVE, NEED TO BE ACTIVATED)
+     */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public ThirdPartyDtoResponse createUser (@Valid @RequestBody ThirdPartyDto thirdPartyDto){
         return thirdPartyService.createUser(thirdPartyDto);
     }
-
+    /**
+     * Accounts Functions: Register, View and DebitService
+     */
 
     @PostMapping("/account")
     public AccountMapDto registerAccount (@RequestParam String account,
@@ -40,8 +44,14 @@ public class ThirdPartyController {
         return thirdPartyService.allAcountMap();
     }
 
+    @PatchMapping("/debitservice")
+    public TransactionDto debitservice( @RequestHeader(name = "account") String account,
+                                        @RequestParam BigDecimal amount
+    ){
+        return thirdPartyService.debitService(account,amount);
+    }
     /**
-     * ThirdParty not registered
+     * ThirdParty not registered Functions
      */
     @PatchMapping("/chargeservice")
     public TransactionDto chargeService(@RequestHeader(name = "company") String company,
@@ -58,12 +68,4 @@ public class ThirdPartyController {
                                             @RequestHeader (name = "thirdClient") String name){
         return thirdPartyService.transferToAccount(transferDto, bankName, name);
     }
-
-    @PatchMapping("/debitservice")
-    public TransactionDto debitservice( @RequestHeader(name = "account") String account,
-                                        @RequestParam BigDecimal amount
-    ){
-        return thirdPartyService.debitService(account,amount);
-    }
-
 }

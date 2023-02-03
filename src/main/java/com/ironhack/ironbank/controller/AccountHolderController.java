@@ -23,10 +23,28 @@ public class AccountHolderController {
 
     private final HoldersService holdersService;
 
+    /**
+     * User functions:
+     */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountHolderDtoResponse register(@Valid @RequestBody AccountHolderDto accountHolderDto){
         return holdersService.register(accountHolderDto);
+    }
+
+    @GetMapping("/info")
+    public AccountHolderInfoDto viewPersonalInfo(){
+        return holdersService.viewPersonalInfo();
+    }
+
+    @PatchMapping("/update")
+    public AccountHolderDtoResponse updateInfo(@RequestParam Optional<String> username,
+                                               @RequestParam Optional<String> password,
+                                               @RequestParam Optional<String> address,
+                                               @RequestParam Optional<String> phone,
+                                               @Email @RequestParam Optional<String> email
+    ){
+        return holdersService.update(username,password, address, phone, email);
     }
 
     @PostMapping("/forgotpassword")
@@ -34,19 +52,43 @@ public class AccountHolderController {
                                  @RequestParam String email){
         return holdersService.forgotPassword(nif, email);
     }
+    /**
+     * Account Functions: Set or Delete secondary Owner
+     */
+    @PutMapping("/setSecondaryOwner/{account}")
+    public AccountDto setSecondaryOwner(@PathVariable String account,
+                                        @RequestParam String secondaryOwnerNif){
+        return holdersService.setSecondaryOwner(account, secondaryOwnerNif);
+    }
 
-
+    /**
+     * Account Functions: Create
+     */
     @PostMapping("/create/checking")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountDto createCheckingAccount(){
         return holdersService.createCheckingAccount();
     }
 
-
     @PostMapping("/create/saving")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountDto createCheckingAccount(@RequestParam BigDecimal amount){
         return holdersService.createSavingAccount(amount);
+    }
+
+    @PostMapping("/create/credit")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AccountDto createCreditAccount(){
+        return holdersService.createCreditAccount();
+    }
+
+    /**
+     * Account Functions: Deposit
+     */
+    @PutMapping("/deposit")
+    @ResponseStatus(HttpStatus.OK)
+    public AccountDto depositInCheckingAccount(@RequestParam BigDecimal amount){
+        return  holdersService.depositInCheckingAccount(amount);
     }
 
     @PutMapping("/deposit/saving/{account}")
@@ -60,23 +102,24 @@ public class AccountHolderController {
                                                        @PathVariable String account){
         return holdersService.depositSavingAccountFromChecking(account, amount);
     }
+    /**
+     * Account Functions: Withdraw
+     */
+
+    @PutMapping("/withdraw")
+    @ResponseStatus(HttpStatus.OK)
+    public TransactionDto withdraw(@RequestParam BigDecimal amount){
+        return  holdersService.withdraw(amount);
+    }
     @GetMapping("/withdraw/saving/{account}")
     public TransactionDto withdrawSavingAccount(@RequestParam BigDecimal amount,
                                             @PathVariable String account){
         return holdersService.withdrawSavingAccount(account, amount);
     }
 
-    @PostMapping("/create/credit")
-    @ResponseStatus(HttpStatus.CREATED)
-    public AccountDto createCreditAccount(){
-        return holdersService.createCreditAccount();
-    }
-
-    @PutMapping("/deposit")
-    @ResponseStatus(HttpStatus.OK)
-    public AccountDto depositInCheckingAccount(@RequestParam BigDecimal amount){
-        return  holdersService.depositInCheckingAccount(amount);
-    }
+    /**
+     * Account Functions: Buy with CreditCard
+     */
 
     @PutMapping("/buywithcredit")
     @ResponseStatus(HttpStatus.OK)
@@ -85,12 +128,9 @@ public class AccountHolderController {
         return  holdersService.buyWithCredit(amount, store);
     }
 
-    @PutMapping("/withdraw")
-    @ResponseStatus(HttpStatus.OK)
-    public TransactionDto withdraw(@RequestParam BigDecimal amount){
-        return  holdersService.withdraw(amount);
-    }
-
+    /**
+     * Account Functions: View All or Specific Accounts
+     */
     @GetMapping("/all")
     public List<AccountDto> allAccounts(){
         return holdersService.allAccounts();
@@ -101,41 +141,21 @@ public class AccountHolderController {
         return holdersService.viewAccount(account);
     }
 
-    //TODO: ponerle que filtre por fecha
+    /**
+     * Account Functions: view All Transactions of Specific Account.
+     */
     @GetMapping("/transactions")
     public List<TransactionDto> viewTransactions(@RequestParam String account){
         return holdersService.viewTransactions(account);
     }
 
-    @GetMapping("/info")
-    public AccountHolderInfoDto viewPersonalInfo(){
-        return holdersService.viewPersonalInfo();
-    }
-
-    @PatchMapping("/update")
-    public AccountHolderDtoResponse updateInfo(@RequestParam Optional<String> username,
-                                             @RequestParam Optional<String> password,
-                                             @RequestParam Optional<String> address,
-                                             @RequestParam Optional<String> phone,
-                                             @Email @RequestParam Optional<String> email
-                                            ){
-        return holdersService.update(username,password, address, phone, email);
-    }
-
-    @PutMapping("/setSecondaryOwner/{account}")
-    public AccountDto setSecondaryOwner(@PathVariable String account,
-                                        @RequestParam String secondaryOwnerNif){
-        return holdersService.setSecondaryOwner(account, secondaryOwnerNif);
-    }
-
+    /**
+     * Account Functions: Make a Transfer.
+     */
 
     @PutMapping("/transfer/{account}")
     public TransactionDto trasnferToAccount(@PathVariable String account,
                                             @RequestParam BigDecimal amount){
         return  holdersService.trasnferToAccount(account, amount);
     }
-
-
-
-
 }
