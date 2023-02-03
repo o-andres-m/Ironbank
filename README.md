@@ -3,17 +3,26 @@
 IronBank is a full backend software to manage a Bank System.
 This software is developed in Java 17, with Maven and SpringBoot 3.0.1 framework.
 The database is MySql database.
+
 The application runs in port 8080 as default, but you can change it in the `application.yaml` file.
 You can manage some settings in file `settings/Settings.java`
 
 For work with the application, you need to make requests to the endpoints. These endpoints can be Public or Private. Endpoints have CRUD methods to manage all system. The security of Endpoints is in `SecurityConfig.java`
 
 In IronBank you can register as AccountHolder or ThirdParty users. You have a first Admin to create another Admins. To manage security, the users must be logged in by `BasicAuth`.
+
+
 The AccountHolders are the principal clients of the Bank and they can create accounts, make payments with credit cards, make transfers to other accounts, deposit and withdraw money from accounts, and have savings accounts to increase their balances.
 The ThirdPartyUsers are the secondary clients. They can be registered in the system or can work without registration.
 Account Numbers and Secret Keys are Auto Generated.
+
+
 Every money movement in accounts is registered as `Transaction`. Every transaction has a unique number, date, account, amount, currency, type, and observations.
+
+
 The system has a Fraud Detection when some accounts have 2 transactions in less than 1 second, and some accounts try to decrease their balance by 150% of the high daily transaction every. This happens only when the amounts are over 1.000.
+
+
 Every month is auto executed the payment of the Monthly Maintenance, and the apply of Interest to accounts. You can set the day to apply both in settings.
 If some error happens or some action is not supported, the system shows a specific error but continues working.
 
