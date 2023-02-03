@@ -65,12 +65,11 @@ public class AdminService {
     }
 
     public ThirdPartyDtoResponse registerTP(ThirdPartyDto thirdPartyDto) {
-        var user = thirdPartyDto.getUsername();
-        accountUtils.verifyUserExists(user);
+        accountUtils.verifyUserExists(thirdPartyDto.getUsername());
+        accountUtils.verifyNifExists(thirdPartyDto.getNif());
 
         var thirdParty = accountUtils.createThirdParty(thirdPartyDto);
         return ThirdPartyDtoResponse.fromThirdParty(userRepository.save(thirdParty));
-
     }
 
     public AdminDtoResponse registerAdmin(AdminDto adminDto) {
@@ -79,7 +78,6 @@ public class AdminService {
 
         var admin = accountUtils.createAdmin(adminDto);
         return AdminDtoResponse.fromAdmin(userRepository.save(admin));
-
     }
 
     /**
@@ -141,7 +139,7 @@ public class AdminService {
         User foundUser = accountUtils.getUserById(id);
         username.ifPresent(accountUtils::verifyUserExists);
 
-        if(foundUser.getRoles().equals("ROLE_TIRDPARTY")) {
+        if(foundUser.getRoles().equals("ROLE_THIRDPARTY")) {
             var user =  (ThirdParty) foundUser;
             username.ifPresent(user::setUsername);
             companyName.ifPresent(user::setCompanyName);
@@ -204,7 +202,6 @@ public class AdminService {
         if (secondaryOwnerId.isPresent() && secondaryOwnerId.get() == 0L){
             accountFound.setSecondaryOwner(null);
         }else {
-            // TODO VER QUE FUNCIONE!!! Se cambio!
             secondaryOwnerId.ifPresent(aLong -> accountFound.setSecondaryOwner(userUtils.getAccountHolder(aLong)));
         }
         if (minimumBalance.isPresent()) {
@@ -234,15 +231,22 @@ public class AdminService {
         return "User id: "+id+", username: "+foundUser.getUsername()+", is now ACTIVATED";
     }
 
-    public String desactivateUser(Long id) {
+    public String deactivateUser(Long id) {
         User foundUser = accountUtils.getUserById(id);
         foundUser.setIsAccountNonLocked(false);
         userRepository.save(foundUser);
         return "User id: "+id+", username: "+foundUser.getUsername()+", is now DESACTIVATED";
     }
 
+    public String deleteUser(Long id) {
+
+        var foundUser = userUtils.getAccountHolder(id);
+        userRepository.delete(foundUser);
+        return "User Nº "+id+" deleted. Their accounts have been deleted as well";
+    }
+
     public AccountDto freezeAccount(String account, Integer action) {
-        if(action != 0 ||  action != 1){
+        if(action != 0 &&  action != 1){
             throw new EspecificException("Please put 'action' param. (0 = FREEZE, 1 = ACTIVE)");
         }
         Account accountFound =accountUtils.getAccountByNumber(account);
@@ -253,15 +257,6 @@ public class AdminService {
             accountFound.setStatus(Status.FREEZE);
         }
         return AccountDto.fromAccount(accountRepository.save(accountFound));
-    }
-
-
-
-    public String deleteUser(Long id) {
-
-        var foundUser = userUtils.getAccountHolder(id);
-        userRepository.delete(foundUser);
-        return "User Nº "+id+" deleted. Their accounts have been deleted as well";
     }
 
 
@@ -321,18 +316,14 @@ public class AdminService {
         var listOfCreditCards = accountRepository.findAllCreditCardAccounts();
         var transactionList = new ArrayList<TransactionDto>();
         for(CreditCardAccount creditCard : listOfCreditCards) {
-
-            //Verifica que la credit card tenga consumo
             if(creditCard.getBalance().getAmount().signum() == 1) {
                 var owner = userRepository.findById(creditCard.getPrimaryOwner().getId());
                 var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) owner.get());
 
-                //Debitamos de la cuenta + registramos el movimiento + actualizamos cuenta
                 checkingAccount.get().getBalance().decreaseAmount(creditCard.getBalance().getAmount());
                 transactionList.add(TransactionDto.fromTransaction(transactionUtils.registerDebitCreditCard(checkingAccount.get(), creditCard)));
                 accountRepository.save(checkingAccount.get());
 
-                // Ponemos la creditcard en cero + registramos movimiento + actualizamos credit card
                 transactionUtils.registerPaymentCreditCard(creditCard, checkingAccount.get());
                 creditCard.getBalance().decreaseAmount(creditCard.getBalance().getAmount());
                 accountRepository.save(creditCard);
@@ -369,7 +360,7 @@ public class AdminService {
 
     public AccountDto createSaving(Long id, BigDecimal amount) {
         var accountHolder = userUtils.getAccountHolder(id);
-        if (amount.intValueExact()<100) throw new EspecificException("Minimum amount: 100");
+        if (amount.intValueExact()<1000) throw new EspecificException("Minimum amount: 100");
 
         var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner(accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));

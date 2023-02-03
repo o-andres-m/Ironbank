@@ -18,7 +18,6 @@ public class AdminDto {
     private String username;
 
     @NotBlank(message = "Password required.")
-    @JsonIgnore
     private String password;
 
     @NotBlank(message = "First Name required.")

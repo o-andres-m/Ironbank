@@ -33,7 +33,6 @@ public class AdminController {
      * Admin can register AccountHolder, ThirdParty and Admins.
      * Every user need Json Body Dto to register.
      */
-
     @PostMapping("/register/AH")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountHolderDtoResponse registerAH(@Valid @RequestBody  AccountHolderDto accountHolderDto) {
@@ -116,9 +115,9 @@ public class AdminController {
         return adminService.activateUser(id);
     }
 
-    @PatchMapping("/desactivate/{id}")
-    public String desactivateUser(@PathVariable Long id){
-        return adminService.desactivateUser(id);
+    @PatchMapping("/deactivate/{id}")
+    public String deactivateUser(@PathVariable Long id){
+        return adminService.deactivateUser(id);
     }
 
     @DeleteMapping("/user/{id}")
@@ -152,7 +151,7 @@ public class AdminController {
 
     @PatchMapping("/accounts/freeze/{account}")
     public AccountDto freezeAccount(@PathVariable String account,
-                                    @PathVariable Integer action){
+                                    @RequestParam Integer action){
         return adminService.freezeAccount(account, action);
     }
 
