@@ -77,7 +77,4 @@ public class AutomaticControllers {
             restTemplate.put(endpointURL, String.class);
         }
     }
-
-
-
 }
