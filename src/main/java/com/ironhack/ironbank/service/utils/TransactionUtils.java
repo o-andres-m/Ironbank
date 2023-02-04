@@ -27,12 +27,30 @@ public class TransactionUtils {
         return transactionRepository.save(transaction);
     }
 
+    public Transaction registerAdminDeposit(Account account, BigDecimal amount, String user){
+        var transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(new Money(amount));
+        transaction.setTransactionType(TransactionType.DEPOSIT);
+        transaction.setObservations("Admin balance adjust(DEPOSIT). User: "+user);
+        return transactionRepository.save(transaction);
+    }
+
     public Transaction registerWithdraw(Account account, BigDecimal amount){
         var transaction = new Transaction();
         transaction.setAccount(account);
         transaction.setAmount(new Money(amount.negate()));
         transaction.setTransactionType(TransactionType.WITHDRAW);
         transaction.setObservations("Owner Withdraw");
+        return transactionRepository.save(transaction);
+    }
+
+    public Transaction registerAdminWithdraw(Account account, BigDecimal amount, String user){
+        var transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(new Money(amount.negate()));
+        transaction.setTransactionType(TransactionType.WITHDRAW);
+        transaction.setObservations("Admin balance adjust(WITHDRAW). User: "+user);
         return transactionRepository.save(transaction);
     }
 

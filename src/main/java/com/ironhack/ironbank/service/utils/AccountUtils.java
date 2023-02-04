@@ -175,16 +175,27 @@ public class AccountUtils {
             throw new EspecificException("Credit Card doesn't have credit limit.");
     }
 
-    public void verifyAccountIsFromThisBank(String account, BigDecimal amount, AccountHolder accountHolder) {
+    public void verifyAccountIsFromThisBank(String account, BigDecimal amount, User user) {
         var toAccount = accountRepository.findAccountByNumber(account);
+        var name = "";
+        if(user instanceof Admin) name = ((Admin) user).getFirstName();
+        if(user instanceof AccountHolder) name = ((AccountHolder) user).getFirstName();
+
+
         if(toAccount.isPresent()){
+            checkAccountNotFreezed(toAccount.get());
             toAccount.get().getBalance().increaseAmount(amount);
-            transactionUtils.registerTransferFromThirdParty(toAccount.get(), amount, Settings.getBANK_NAME(), accountHolder.getFirstName());
+            transactionUtils.registerTransferFromThirdParty(toAccount.get(), amount, Settings.getBANK_NAME(), name);
         }
     }
 
     public void verifyAccountAndSecretKey(Account accountToCharge, String secretKey) {
         if(!accountToCharge.getSecretKey().equals(secretKey))
             throw new EspecificException("SecretKey Invalid.");
+    }
+
+    public void checkIsCheckingAccount(Account fromAccount) {
+        if(!(fromAccount instanceof CheckingAccount)) throw new EspecificException("Account is not CheckingAccount.");
+
     }
 }

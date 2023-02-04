@@ -202,7 +202,7 @@ Requires a “bank” and “thirdClient” in Headers. For this Endpoint is not
 ### Admin Endpoints:
 
 | # | Endpoint| Method| Action | Login |
-| :--- | :--- | :--- | :--- | :--- |
+| :-- | :--- | :--- | :--- | :--- |
 | 1 | /admin/register/AH | POST | Register AccountHolder | YES |
 | 2 | /admin/register/TP | POST | Register ThirdParty| YES |
 | 3 | /admin/register/ADMIN | POST | Register Admin | YES |
@@ -227,6 +227,10 @@ Requires a “bank” and “thirdClient” in Headers. For this Endpoint is not
 | 22 | /admin/accounts/create/checking/{id} | POST | Create Checking Account | YES |
 | 23 | /admin/accounts/create/credit/{id} | POST | Create Credit Account | YES |
 | 24 | /admin/accounts/create/saving/{id} | POST | Create Saving Account | YES |
+| 25 | /admin/deposit/{account} | PUT | Deposit to Account | YES |
+| 26 | /admin/withdraw/{account} | GET | Withdraw from Account | YES |
+| 27 | /admin/transfer/{accountFrom}-{accountTo} | POST | Transfer Between Accounts | YES |
+
 
 
 1. Register AccountHolder: Post method, sending a json body with this format:
@@ -295,6 +299,10 @@ Return a Json with the information of a new User.
 22. Create Checking Account: Post Method. Request ID Number of AccountoHolder to create Checking Account. Return Account.
 23. Create Credit Account: Post Method. Request ID Number of AccountoHolder to create Credit Account. Return Account.
 24. Create Saving Account: Post Method. Request ID Number of AccountoHolder to create Checking Account, and “amount” as Param, this amount will be debited from the Checking Account of this User. Return Account.
+25. Deposit Account: Post Method. Request Account Number "account"as Varible in URL, and "amount", as Param, this amount will be accredited to the Account. Return Transaction.
+26. Withdraw Account: Get Method. Request Account Number "account" as Varible in URL, and "amount" as Param, this amount will be debited from the Account. Return Transaction.
+27. Transfer To Account: Post Method. Request Account Number "accountFrom" and "amountTo" as Varible in URL,and "amount" as Param, this amount will be debited from the AccountFrom, and if AccountTo is from this Bank, the amount will be accredited. Return Transaction from Debit.
+
 
 
 

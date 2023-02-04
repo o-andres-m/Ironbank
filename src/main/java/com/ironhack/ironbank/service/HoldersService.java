@@ -57,12 +57,7 @@ public class HoldersService {
     /**
     Method to get the account Holder
      */
-    private User getLoginUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        var accountHolder = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(()-> new UserNotFoundException(authentication.getName()));
-        return accountHolder;
-    }
+
 
     /**
      * START ACCOUNTHOLDERS LOGIC FOR ENDPOINTS
@@ -81,13 +76,13 @@ public class HoldersService {
         }
 
     public AccountHolderInfoDto viewPersonalInfo() {
-        User accountHolder = getLoginUser();
+        User accountHolder = userUtils.getLoginUser();
         return AccountHolderInfoDto.fromAccountHolder((AccountHolder) userRepository.findByUsername(accountHolder.getUsername()).get());
     }
 
     public AccountHolderDtoResponse update(Optional<String> username, Optional<String> password, Optional<String> address, Optional<String> phone, Optional<String> email) {
         username.ifPresent(accountUtils::verifyUserExists);
-        var accountHolder = (AccountHolder) getLoginUser();
+        var accountHolder = (AccountHolder) userUtils.getLoginUser();
         username.ifPresent(accountHolder::setUsername);
         password.ifPresent(s -> accountHolder.setPassword(passwordEncoder.encode(s)));
         var accountHolderAddress = accountHolder.getAddress();
@@ -109,7 +104,7 @@ public class HoldersService {
     }
 
     public AccountDto setSecondaryOwner(String account, String secondaryOwnerNif) {
-        User accountHolder = getLoginUser();
+        User accountHolder = userUtils.getLoginUser();
         var accountToUpdate= accountUtils.getAndVerifyAccount(account, accountHolder);
         accountUtils.checkAccountNotFreezed(accountToUpdate);
         if (secondaryOwnerNif.equals("0")){
@@ -126,7 +121,7 @@ public class HoldersService {
      */
 
     public AccountDto createCheckingAccount() {
-        User accountHolder = getLoginUser();
+        User accountHolder = userUtils.getLoginUser();
 
         var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder);
         accountUtils.checkUserDoesntHaveCheckingAccount(checkingAccount);
@@ -145,7 +140,7 @@ public class HoldersService {
 
     public TransactionDto createSavingAccount(BigDecimal amount) {
         if (amount.intValueExact()<1000) throw new EspecificException("Minimum amount: 1000");
-        var accountHolder = getLoginUser();
+        var accountHolder = userUtils.getLoginUser();
         var checkingAccount = accountUtils.checkUserHaveCheckingAccount(accountHolder);
 
         accountUtils.checkAccountNotFreezed(checkingAccount);
@@ -169,7 +164,7 @@ public class HoldersService {
     }
 
     public AccountDto createCreditAccount() {
-        User accountHolder = getLoginUser();
+        User accountHolder = userUtils.getLoginUser();
 
         var checkingAccount = accountUtils.findCheckingAccountByAccountHolder((AccountHolder) accountHolder);
         accountUtils.checkAccountNotFreezed(checkingAccount);
@@ -180,7 +175,7 @@ public class HoldersService {
 
 
     public TransactionDto depositInCheckingAccount(BigDecimal amount) {
-        User accountHolder = getLoginUser();
+        User accountHolder = userUtils.getLoginUser();
         var checkingAccount = accountUtils.checkUserHaveCheckingAccount(accountHolder);
         accountUtils.checkAccountNotFreezed(checkingAccount);
         checkingAccount.getBalance().increaseAmount(amount);
@@ -189,7 +184,7 @@ public class HoldersService {
     }
 
     public TransactionDto depositSavingAccount(String account, BigDecimal amount) {
-        var accountHolder = getLoginUser();
+        var accountHolder = userUtils.getLoginUser();
         Account savingAccount = savingAccountRepository.findSavingAccountByNumber(account).orElseThrow(
                 ()-> new EspecificException("Account not found."));
         accountUtils.checkAccountNotFreezed(savingAccount);
@@ -200,7 +195,7 @@ public class HoldersService {
     }
 
     public TransactionDto depositSavingAccountFromChecking(String account, BigDecimal amount) {
-        var accountHolder = getLoginUser();
+        var accountHolder = userUtils.getLoginUser();
         var checkingAccount = accountUtils.findCheckingAccountByAccountHolder((AccountHolder) accountHolder);
         accountUtils.getAndVerifyAccount(account,accountHolder);
         accountUtils.checkAccountNotFreezed(checkingAccount);
@@ -223,7 +218,7 @@ public class HoldersService {
     }
 
     public TransactionDto withdraw(BigDecimal amount) {
-        User accountHolder = getLoginUser();
+        User accountHolder = userUtils.getLoginUser();
 
         var checkingAccount = accountUtils.checkUserHaveCheckingAccount(accountHolder);
         fraudDetectionUtils.verifyExpensiveOperation(checkingAccount,amount);
@@ -238,7 +233,7 @@ public class HoldersService {
 
 
     public TransactionDto withdrawSavingAccount(String account, BigDecimal amount) {
-        var accountHolder = getLoginUser();
+        var accountHolder = userUtils.getLoginUser();
         SavingAccount savingAccount = savingAccountRepository.findSavingAccountByNumber(account).orElseThrow(
                 ()-> new EspecificException("Account not found."));
         accountUtils.getAndVerifyAccount(account,accountHolder);
@@ -268,7 +263,7 @@ public class HoldersService {
     }
 
     public TransactionDto buyWithCredit(BigDecimal amount,String store) {
-        User accountHolder = getLoginUser();
+        User accountHolder = userUtils.getLoginUser();
         var creditAccount = creditCardAccountRepository.findCreditCardAccountByPrimaryOwner((AccountHolder) accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Credit Card."));
 
@@ -284,7 +279,7 @@ public class HoldersService {
     }
 
     public List<AccountDto> allAccounts() {
-        User accountHolder = getLoginUser();
+        User accountHolder = userUtils.getLoginUser();
         var accountList = accountRepository.findAccountByPrimaryOwner_Username(accountHolder.getUsername());
         var accountListDto = new ArrayList<AccountDto>();
 
@@ -295,13 +290,13 @@ public class HoldersService {
     }
 
     public AccountDto viewAccount(String account) {
-        User accountHolder = getLoginUser();
+        User accountHolder = userUtils.getLoginUser();
         Account accountFound = accountUtils.getAndVerifyAccount(account, accountHolder);
         return AccountDto.fromAccount(accountFound);
     }
 
     public List<TransactionDto> viewTransactions(String account) {
-        User accountHolder = getLoginUser();
+        User accountHolder = userUtils.getLoginUser();
         accountUtils.getAndVerifyAccount(account, accountHolder);
         var transactionList = transactionRepository.findTransactionsByAccount_NumberOrderByDateDesc(account);
         var transacionDtoList = new ArrayList<TransactionDto>();
@@ -312,7 +307,7 @@ public class HoldersService {
     }
 
     public TransactionDto trasnferToAccount(String account, BigDecimal amount) {
-        User accountHolder = getLoginUser();
+        User accountHolder = userUtils.getLoginUser();
         var fromAccount = accountUtils.findCheckingAccountByAccountHolder((AccountHolder) accountHolder);
 
         accountUtils.checkFinalBalance(fromAccount,amount);

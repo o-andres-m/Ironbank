@@ -206,4 +206,28 @@ public class AdminController {
                                    @RequestParam BigDecimal amount){
         return adminService.createSaving(id, amount);
     }
+
+    /**
+     * Admin to Accounts: Make Money Movement
+     */
+    @PutMapping("/accounts/deposit/{account}")
+    public TransactionDto depositToAccount(@PathVariable String account,
+                                         @RequestParam BigDecimal amount){
+        return adminService.depositToAccount(account,amount);
+    }
+
+    @GetMapping("/accounts/withdraw/{account}")
+    public TransactionDto withdrawFromAccount(@PathVariable String account,
+                                         @RequestParam BigDecimal amount){
+        return adminService.withdrawFromAccount(account,amount);
+    }
+
+    @PostMapping("/accounts/transfer/{accountFrom}-{accountTo}")
+    public TransactionDto transfer(@PathVariable String accountFrom,
+                                   @PathVariable String accountTo,
+                                   @RequestParam BigDecimal amount){
+        return adminService.transfer(accountFrom, accountTo, amount);
+    }
+
+
 }

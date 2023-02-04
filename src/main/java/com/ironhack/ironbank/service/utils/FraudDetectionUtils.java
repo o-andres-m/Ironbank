@@ -5,6 +5,7 @@ import com.ironhack.ironbank.model.entities.accounts.Account;
 import com.ironhack.ironbank.model.enums.Status;
 import com.ironhack.ironbank.repository.AccountRepository;
 import com.ironhack.ironbank.repository.TransactionRepository;
+import com.ironhack.ironbank.setting.Settings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class FraudDetectionUtils {
         var lastTransaction = transactionRepository.findLastTransactionByAccountId(account.getId());
         if (lastTransaction != null) {
             var duration = Duration.between(lastTransaction.getDate(), Instant.now());
-            if (duration.getSeconds() < 2) {
+            if (duration.getSeconds() < Settings.getSECONDS_TO_FRAUD_DETECT()) {
                 account.setStatus(Status.FREEZE);
                 accountRepository.save(account);
                 throw new EspecificException("¡FRAUD DETECTED! Please go to the bank to activate account.");

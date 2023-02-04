@@ -20,10 +20,7 @@ import com.ironhack.ironbank.model.enums.Status;
 import com.ironhack.ironbank.repository.AccountRepository;
 import com.ironhack.ironbank.repository.CheckingAccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
-import com.ironhack.ironbank.service.utils.AccountUtils;
-import com.ironhack.ironbank.service.utils.TransactionUtils;
-import com.ironhack.ironbank.service.utils.UserUtils;
-import com.ironhack.ironbank.service.utils.Utils;
+import com.ironhack.ironbank.service.utils.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,6 +47,8 @@ public class AdminService {
     private final TransactionUtils transactionUtils;
 
     private final CheckingAccountRepository checkingAccountRepository;
+
+    private final FraudDetectionUtils fraudDetectionUtils;
 
 
     /**
@@ -379,6 +378,49 @@ public class AdminService {
         checkingAccount.getBalance().decreaseAmount(amount);
         accountRepository.save(checkingAccount);
         return AccountDto.fromAccount(accountCreated);
+    }
+
+    public TransactionDto depositToAccount(String account, BigDecimal amount) {
+        User admin = userUtils.getLoginUser();
+        var accountToDeposit = accountUtils.getAccountByNumber(account);
+        accountUtils.checkAccountNotFreezed(accountToDeposit);
+
+        accountToDeposit.getBalance().increaseAmount(amount);
+        accountRepository.save(accountToDeposit);
+        return TransactionDto.fromTransaction(transactionUtils.registerAdminDeposit(accountToDeposit,amount,admin.getUsername()));
+    }
+
+    public TransactionDto withdrawFromAccount(String account, BigDecimal amount) {
+        User admin = userUtils.getLoginUser();
+
+        var accountToWithdraw = accountUtils.getAccountByNumber(account);
+        fraudDetectionUtils.verifyExpensiveOperation(accountToWithdraw,amount);
+        fraudDetectionUtils.verifyRecurrentOperations(accountToWithdraw);
+        accountUtils.checkAccountNotFreezed(accountToWithdraw);
+        accountUtils.checkFinalBalance(accountToWithdraw,amount);
+
+        accountToWithdraw.getBalance().decreaseAmount(amount);
+        accountRepository.save(accountToWithdraw);
+        return TransactionDto.fromTransaction(transactionUtils.registerAdminWithdraw(accountToWithdraw,amount,admin.getUsername()));
+    }
+
+    public TransactionDto transfer(String accountFrom, String accountTo, BigDecimal amount) {
+        User admin = userUtils.getLoginUser();
+
+        var fromAccount = accountUtils.getAccountByNumber(accountFrom);
+
+        accountUtils.checkIsCheckingAccount(fromAccount);
+        fraudDetectionUtils.verifyExpensiveOperation(fromAccount,amount);
+        fraudDetectionUtils.verifyRecurrentOperations(fromAccount);
+        accountUtils.checkAccountNotFreezed(fromAccount);
+        accountUtils.checkFinalBalance(fromAccount,amount);
+
+        fromAccount.getBalance().decreaseAmount(amount);
+        accountRepository.save(fromAccount);
+
+       accountUtils.verifyAccountIsFromThisBank(accountTo, amount, admin);
+
+        return TransactionDto.fromTransaction(transactionUtils.registerTransferToAnotherAccount((CheckingAccount) fromAccount,amount,accountTo));
     }
 }
 

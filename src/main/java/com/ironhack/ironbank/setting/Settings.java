@@ -10,6 +10,9 @@ public class Settings {
 
     private static final String DAY_TO_APPLY_MAINTENANCE = "01";
 
+    private static final int SECONDS_TO_FRAUD_DETECT = 2;
+
+
 
     public static String getBANK_NAME() {
         return BANK_NAME;
@@ -26,5 +29,10 @@ public class Settings {
     public static String getDAY_TO_APPLY_MAINTENANCE() {
         return DAY_TO_APPLY_MAINTENANCE;
     }
+
+    public static int getSECONDS_TO_FRAUD_DETECT() {
+        return SECONDS_TO_FRAUD_DETECT;
+    }
+
 
 }
