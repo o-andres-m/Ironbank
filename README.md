@@ -1,5 +1,7 @@
 # IronBank :bank:
 
+![Logo IronBank](/images/ironBank.jpg "Logo IronBank")
+
 
 IronBank is a full backend software to manage a Bank System.
 This software is developed in Java 17, with Maven and SpringBoot 3.0.1 framework.
@@ -21,10 +23,12 @@ Account Numbers and Secret Keys are Auto Generated.
 Every money movement in accounts is registered as `Transaction`. Every transaction has a unique number, date, account, amount, currency, type, and observations.
 
 
-The system has a Fraud Detection when some accounts have 2 transactions in less than 1 second, and some accounts try to decrease their balance by 150% of the high daily transaction every. This happens only when the amounts are over 1.000.
+The system has a Fraud Detection when some accounts have 2 transactions in less than 2 seconds (edit from Settings), and some accounts try to decrease their balance by 150% of the high daily transaction every. This happens only when the amounts are over 1.000.
 
 
-Every month is auto executed the payment of the Monthly Maintenance, and the apply of Interest to accounts. You can set the day to apply both in settings.
+Every month is auto executed the payment of the Monthly Maintenance, and the apply of Interest to accounts. You can set the day to apply both in settings. 
+If something happen, and the Interests or Monthly Maintenance doesn't apply automatic, Admins can apply manually.
+
 If some error happens or some action is not supported, the system shows a specific error but continues working.
 
 
