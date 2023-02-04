@@ -396,6 +396,7 @@ public class AdminService {
         var accountToWithdraw = accountUtils.getAccountByNumber(account);
         fraudDetectionUtils.verifyExpensiveOperation(accountToWithdraw,amount);
         fraudDetectionUtils.verifyRecurrentOperations(accountToWithdraw);
+
         accountUtils.checkAccountNotFreezed(accountToWithdraw);
         accountUtils.checkFinalBalance(accountToWithdraw,amount);
 
@@ -414,6 +415,7 @@ public class AdminService {
         fraudDetectionUtils.verifyRecurrentOperations(fromAccount);
         accountUtils.checkAccountNotFreezed(fromAccount);
         accountUtils.checkFinalBalance(fromAccount,amount);
+        accountUtils.checkToApplyPenaltyCheckingAC((CheckingAccount) fromAccount,amount);
 
         fromAccount.getBalance().decreaseAmount(amount);
         accountRepository.save(fromAccount);

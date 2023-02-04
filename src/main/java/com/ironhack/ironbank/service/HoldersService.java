@@ -125,7 +125,6 @@ public class HoldersService {
 
         var checkingAccount = checkingAccountRepository.findCheckingAccountByPrimaryOwner((AccountHolder) accountHolder);
         accountUtils.checkUserDoesntHaveCheckingAccount(checkingAccount);
-        accountUtils.checkAccountNotFreezed(checkingAccount.get());
 
         if (Utils.isOver24(Utils.calculateAge(((AccountHolder) accountHolder).getDateOfBirth()))) {
             var accountCreated = new CheckingAccount((AccountHolder) accountHolder);
@@ -143,10 +142,13 @@ public class HoldersService {
         var accountHolder = userUtils.getLoginUser();
         var checkingAccount = accountUtils.checkUserHaveCheckingAccount(accountHolder);
 
-        accountUtils.checkAccountNotFreezed(checkingAccount);
-        accountUtils.checkFinalBalance(checkingAccount,amount);
         fraudDetectionUtils.verifyRecurrentOperations(checkingAccount);
         fraudDetectionUtils.verifyExpensiveOperation(checkingAccount,amount);
+
+        accountUtils.checkAccountNotFreezed(checkingAccount);
+        accountUtils.checkFinalBalance(checkingAccount,amount);
+        accountUtils.checkToApplyPenaltyCheckingAC(checkingAccount,amount);
+
 
         Account accountCreated = new SavingAccount((AccountHolder) accountHolder);
         accountCreated.getBalance().increaseAmount(amount);
@@ -197,11 +199,15 @@ public class HoldersService {
     public TransactionDto depositSavingAccountFromChecking(String account, BigDecimal amount) {
         var accountHolder = userUtils.getLoginUser();
         var checkingAccount = accountUtils.findCheckingAccountByAccountHolder((AccountHolder) accountHolder);
+
+        fraudDetectionUtils.verifyExpensiveOperation(checkingAccount, amount);
+        fraudDetectionUtils.verifyRecurrentOperations(checkingAccount);
+
         accountUtils.getAndVerifyAccount(account,accountHolder);
         accountUtils.checkAccountNotFreezed(checkingAccount);
         accountUtils.checkFinalBalance(checkingAccount,amount);
-        fraudDetectionUtils.verifyExpensiveOperation(checkingAccount, amount);
-        fraudDetectionUtils.verifyRecurrentOperations(checkingAccount);
+        accountUtils.checkToApplyPenaltyCheckingAC(checkingAccount,amount);
+
 
         Account savingAccount = savingAccountRepository.findSavingAccountByNumber(account).orElseThrow(
                 ()-> new EspecificException("Account not found."));
@@ -221,10 +227,14 @@ public class HoldersService {
         User accountHolder = userUtils.getLoginUser();
 
         var checkingAccount = accountUtils.checkUserHaveCheckingAccount(accountHolder);
+
         fraudDetectionUtils.verifyExpensiveOperation(checkingAccount,amount);
         fraudDetectionUtils.verifyRecurrentOperations(checkingAccount);
+
         accountUtils.checkAccountNotFreezed(checkingAccount);
         accountUtils.checkFinalBalance(checkingAccount,amount);
+        accountUtils.checkToApplyPenaltyCheckingAC(checkingAccount,amount);
+
 
         checkingAccount.getBalance().decreaseAmount(amount);
         accountRepository.save(checkingAccount);
@@ -236,12 +246,15 @@ public class HoldersService {
         var accountHolder = userUtils.getLoginUser();
         SavingAccount savingAccount = savingAccountRepository.findSavingAccountByNumber(account).orElseThrow(
                 ()-> new EspecificException("Account not found."));
+
+        fraudDetectionUtils.verifyRecurrentOperations(savingAccount);
+        fraudDetectionUtils.verifyExpensiveOperation(savingAccount,amount);
+
         accountUtils.getAndVerifyAccount(account,accountHolder);
         accountUtils.checkFinalBalance(savingAccount,amount);
         accountUtils.checkMinimumBalance(savingAccount,amount);
         accountUtils.checkAccountNotFreezed(savingAccount);
-        fraudDetectionUtils.verifyRecurrentOperations(savingAccount);
-        fraudDetectionUtils.verifyExpensiveOperation(savingAccount,amount);
+
 
         var transaction = new Transaction();
         if (accountUtils.checkFinalBalanceZero(savingAccount,amount)){
@@ -267,9 +280,10 @@ public class HoldersService {
         var creditAccount = creditCardAccountRepository.findCreditCardAccountByPrimaryOwner((AccountHolder) accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Credit Card."));
 
-        accountUtils.checkAccountNotFreezed(creditAccount);
         fraudDetectionUtils.verifyRecurrentOperations(creditAccount);
         fraudDetectionUtils.verifyExpensiveOperation(creditAccount,amount);
+
+        accountUtils.checkAccountNotFreezed(creditAccount);
         accountUtils.checkCreditLimit(creditAccount,amount);
 
         creditAccount.getBalance().increaseAmount(amount);
@@ -310,11 +324,14 @@ public class HoldersService {
         User accountHolder = userUtils.getLoginUser();
         var fromAccount = accountUtils.findCheckingAccountByAccountHolder((AccountHolder) accountHolder);
 
+        fraudDetectionUtils.verifyRecurrentOperations(fromAccount);
+        fraudDetectionUtils.verifyExpensiveOperation(fromAccount,amount);
+
         accountUtils.checkFinalBalance(fromAccount,amount);
         accountUtils.checkMinimumBalance(fromAccount,amount);
         accountUtils.checkAccountNotFreezed(fromAccount);
-        fraudDetectionUtils.verifyRecurrentOperations(fromAccount);
-        fraudDetectionUtils.verifyExpensiveOperation(fromAccount,amount);
+        accountUtils.checkToApplyPenaltyCheckingAC(fromAccount,amount);
+
 
         fromAccount.getBalance().decreaseAmount(amount);
         accountRepository.save(fromAccount);

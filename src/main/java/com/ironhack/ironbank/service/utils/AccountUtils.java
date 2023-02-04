@@ -14,7 +14,6 @@ import com.ironhack.ironbank.repository.CheckingAccountRepository;
 import com.ironhack.ironbank.repository.UserRepository;
 import com.ironhack.ironbank.setting.Settings;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -139,7 +138,7 @@ public class AccountUtils {
 
     }
 
-    //TODO MOVER ESTA A USER UTILS
+    //TODO Move this methods to Utils
     public User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(()-> new EspecificException("User with ID "+ id +" not found."));
     }
@@ -152,5 +151,12 @@ public class AccountUtils {
     public void verifyNifExists(String user) {
         var findUserInDb = accountHolderRepository.findAccountHolderByNif(user);
         if (findUserInDb.isPresent()) throw new EspecificException("Nif is registered.");
+    }
+
+    public void checkToApplyPenaltyCheckingAC(CheckingAccount checkingAccount, BigDecimal amount) {
+        if(checkingAccount.getBalance().getAmount().subtract(amount).doubleValue() < checkingAccount.getMinimumBalance().doubleValue()) {
+            checkingAccount.getBalance().decreaseAmount(checkingAccount.getPenaltyFee().getPenaltyAmount());
+            transactionUtils.registerPenalty(checkingAccount, "AUTOMATIC");
+        }
     }
 }
