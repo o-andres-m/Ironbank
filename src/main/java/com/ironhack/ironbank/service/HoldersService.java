@@ -70,7 +70,7 @@ public class HoldersService {
         if (Utils.calculateAge(accountHolderDto.getDateOfBirth())<18) {
             throw new EspecificException("You must have 18 years for register. Please go to the Bank.");
         }else{
-            var accountHolder = accountUtils.createAccountHolder(accountHolderDto);
+            var accountHolder = userUtils.createAccountHolder(accountHolderDto);
             return AccountHolderDtoResponse.fromAccountHolder(userRepository.save(accountHolder));
             }
         }

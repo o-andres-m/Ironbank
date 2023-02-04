@@ -10,6 +10,10 @@ The database is MySql database.
 The application runs in port 8080 as default, but you can change it in the `application.yaml` file.
 You can manage some settings in file `settings/Settings.java`
 
+In the first Run of Applicaction, set `ddl-auto: create` and `profile: active: load-data`. Later, change to `ddl-auto: validate` and erase the load-data profile.
+
+Show-sql is "false" for keep clean the Run Console, `show-sql: false` 
+
 For work with the application, you need to make requests to the endpoints. These endpoints can be Public or Private. Endpoints have CRUD methods to manage all system. The security of Endpoints is in `SecurityConfig.java`
 
 In IronBank you can register as AccountHolder or ThirdParty users. You have a first Admin to create another Admins. To manage security, the users must be logged in by `BasicAuth`.

@@ -1,6 +1,7 @@
 package com.ironhack.ironbank.demo;
 
 
+import com.ironhack.ironbank.model.entities.users.Admin;
 import com.ironhack.ironbank.model.entities.users.User;
 import com.ironhack.ironbank.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,17 @@ public class DataLoader {
     public void loadData(){
 
         log.info("Loading Data to Database....");
-        var user1 = new User("admin",passwordEncoder.encode("admin"),"ROLE_ADMIN");
-        userRepository.save(user1);
+
+        // Create Admin
+        var admin = new Admin();
+        admin.setUsername("admin");
+        admin.setPassword(passwordEncoder.encode("admin"));
+        admin.setRoles("ROLE_ADMIN");
+        admin.setFirstName("AdminName");
+        admin.setLastName("AdminLastName");
+        admin.setEmail("admin@ironbank.com");
+        userRepository.save(admin);
+
         log.info("Final Loading Data...");
 
     }

@@ -59,7 +59,7 @@ public class AdminService {
         accountUtils.verifyUserExists(accountHolderDto.getUsername());
         accountUtils.verifyNifExists(accountHolderDto.getNif());
 
-        var accountHolder = accountUtils.createAccountHolder(accountHolderDto);
+        var accountHolder = userUtils.createAccountHolder(accountHolderDto);
         return AccountHolderDtoResponse.fromAccountHolder(userRepository.save(accountHolder));
     }
 
@@ -67,7 +67,7 @@ public class AdminService {
         accountUtils.verifyUserExists(thirdPartyDto.getUsername());
         accountUtils.verifyNifExists(thirdPartyDto.getNif());
 
-        var thirdParty = accountUtils.createThirdParty(thirdPartyDto);
+        var thirdParty = userUtils.createThirdParty(thirdPartyDto);
         return ThirdPartyDtoResponse.fromThirdParty(userRepository.save(thirdParty));
     }
 
@@ -75,7 +75,7 @@ public class AdminService {
         var user = adminDto.getUsername();
         accountUtils.verifyUserExists(user);
 
-        var admin = accountUtils.createAdmin(adminDto);
+        var admin = userUtils.createAdmin(adminDto);
         return AdminDtoResponse.fromAdmin(userRepository.save(admin));
     }
 

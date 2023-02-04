@@ -16,6 +16,7 @@ import com.ironhack.ironbank.repository.UserRepository;
 import com.ironhack.ironbank.service.utils.AccountUtils;
 import com.ironhack.ironbank.service.utils.FraudDetectionUtils;
 import com.ironhack.ironbank.service.utils.TransactionUtils;
+import com.ironhack.ironbank.service.utils.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,6 +31,8 @@ import java.util.List;
 public class ThirdPartyService {
 
     private final UserRepository userRepository;
+
+    private final UserUtils userUtils;
 
     private final AccountUtils accountUtils;
 
@@ -47,7 +50,7 @@ public class ThirdPartyService {
     public ThirdPartyDtoResponse createUser(ThirdPartyDto thirdPartyDto) {
         accountUtils.verifyUserExists(thirdPartyDto.getUsername());
         accountUtils.verifyNifExists(thirdPartyDto.getNif());
-        var thirdParty = accountUtils.createThirdParty(thirdPartyDto);
+        var thirdParty = userUtils.createThirdParty(thirdPartyDto);
         //When thirdparty register himself, need to activate account.
         thirdParty.setIsAccountNonLocked(false);
         return ThirdPartyDtoResponse.fromThirdParty(userRepository.save(thirdParty));
