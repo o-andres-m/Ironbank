@@ -56,16 +56,16 @@ public class AdminService {
      */
     public AccountHolderDtoResponse registerAH(AccountHolderDto accountHolderDto) {
         var user = accountHolderDto.getUsername();
-        accountUtils.verifyUserExists(accountHolderDto.getUsername());
-        accountUtils.verifyNifExists(accountHolderDto.getNif());
+        userUtils.verifyUserExists(accountHolderDto.getUsername());
+        userUtils.verifyNifExists(accountHolderDto.getNif());
 
         var accountHolder = userUtils.createAccountHolder(accountHolderDto);
         return AccountHolderDtoResponse.fromAccountHolder(userRepository.save(accountHolder));
     }
 
     public ThirdPartyDtoResponse registerTP(ThirdPartyDto thirdPartyDto) {
-        accountUtils.verifyUserExists(thirdPartyDto.getUsername());
-        accountUtils.verifyNifExists(thirdPartyDto.getNif());
+        userUtils.verifyUserExists(thirdPartyDto.getUsername());
+        userUtils.verifyNifExists(thirdPartyDto.getNif());
 
         var thirdParty = userUtils.createThirdParty(thirdPartyDto);
         return ThirdPartyDtoResponse.fromThirdParty(userRepository.save(thirdParty));
@@ -73,7 +73,7 @@ public class AdminService {
 
     public AdminDtoResponse registerAdmin(AdminDto adminDto) {
         var user = adminDto.getUsername();
-        accountUtils.verifyUserExists(user);
+        userUtils.verifyUserExists(user);
 
         var admin = userUtils.createAdmin(adminDto);
         return AdminDtoResponse.fromAdmin(userRepository.save(admin));
@@ -113,8 +113,8 @@ public class AdminService {
      */
     public AccountHolderDtoResponse updateAH(Long id, Optional<String> username, Optional<String> firstName, Optional<String> lastName, Optional<String> nif, Optional<String> phone, Optional<String> email, Optional<LocalDate> dateOfBirth, Optional<String> address) {
 
-        User foundUser = accountUtils.getUserById(id);
-        username.ifPresent(accountUtils::verifyUserExists);
+        User foundUser = userUtils.getUserById(id);
+        username.ifPresent(userUtils::verifyUserExists);
 
         if(foundUser.getRoles().equals("ROLE_ACCOUNTHOLDER")) {
             var user =  (AccountHolder) foundUser;
@@ -135,8 +135,8 @@ public class AdminService {
 
     public ThirdPartyDtoResponse updateTP(Long id, Optional<String> username, Optional<String> companyName, Optional<String> nif, Optional<String> phone, Optional<String> email, Optional<String> address) {
 
-        User foundUser = accountUtils.getUserById(id);
-        username.ifPresent(accountUtils::verifyUserExists);
+        User foundUser = userUtils.getUserById(id);
+        username.ifPresent(userUtils::verifyUserExists);
 
         if(foundUser.getRoles().equals("ROLE_THIRDPARTY")) {
             var user =  (ThirdParty) foundUser;
@@ -155,8 +155,8 @@ public class AdminService {
 
     public AdminDtoResponse updateAdmin(Long id, Optional<String> username, Optional<String> firstName, Optional<String> lastName, Optional<String> email) {
 
-        User foundUser = accountUtils.getUserById(id);
-        username.ifPresent(accountUtils::verifyUserExists);
+        User foundUser = userUtils.getUserById(id);
+        username.ifPresent(userUtils::verifyUserExists);
 
         if(foundUser.getRoles().equals("ROLE_ADMIN")) {
             var user =  (Admin) foundUser;
@@ -224,14 +224,14 @@ public class AdminService {
     }
 
     public String activateUser(Long id) {
-        User foundUser = accountUtils.getUserById(id);
+        User foundUser = userUtils.getUserById(id);
         foundUser.setIsAccountNonLocked(true);
         userRepository.save(foundUser);
         return "User id: "+id+", username: "+foundUser.getUsername()+", is now ACTIVATED";
     }
 
     public String deactivateUser(Long id) {
-        User foundUser = accountUtils.getUserById(id);
+        User foundUser = userUtils.getUserById(id);
         foundUser.setIsAccountNonLocked(false);
         userRepository.save(foundUser);
         return "User id: "+id+", username: "+foundUser.getUsername()+", is now DESACTIVATED";

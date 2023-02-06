@@ -48,8 +48,8 @@ public class ThirdPartyService {
      * START ACCOUNTHOLDERS LOGIC FOR ENDPOINTS
      */
     public ThirdPartyDtoResponse createUser(ThirdPartyDto thirdPartyDto) {
-        accountUtils.verifyUserExists(thirdPartyDto.getUsername());
-        accountUtils.verifyNifExists(thirdPartyDto.getNif());
+        userUtils.verifyUserExists(thirdPartyDto.getUsername());
+        userUtils.verifyNifExists(thirdPartyDto.getNif());
         var thirdParty = userUtils.createThirdParty(thirdPartyDto);
         //When thirdparty register himself, need to activate account.
         thirdParty.setIsAccountNonLocked(false);

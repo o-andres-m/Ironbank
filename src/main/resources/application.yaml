@@ -7,9 +7,9 @@ spring:
   jpa:
     show-sql: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
   profiles:
-    active: load-data
+    active: #load-data
 
 server:
   port: 8080

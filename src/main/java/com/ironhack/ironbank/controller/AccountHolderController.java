@@ -72,7 +72,7 @@ public class AccountHolderController {
 
     @PostMapping("/create/saving")
     @ResponseStatus(HttpStatus.CREATED)
-    public TransactionDto createCheckingAccount(@RequestParam BigDecimal amount){
+    public TransactionDto createSavingAccount(@RequestParam BigDecimal amount){
         return holdersService.createSavingAccount(amount);
     }
 
@@ -154,8 +154,8 @@ public class AccountHolderController {
      */
 
     @PutMapping("/transfer/{account}")
-    public TransactionDto trasnferToAccount(@PathVariable String account,
+    public TransactionDto transferToAccount(@PathVariable String account,
                                             @RequestParam BigDecimal amount){
-        return  holdersService.trasnferToAccount(account, amount);
+        return  holdersService.transferToAccount(account, amount);
     }
 }

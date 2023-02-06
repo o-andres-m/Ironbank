@@ -6,7 +6,6 @@ import com.ironhack.ironbank.dto.transaction.TransactionDto;
 import com.ironhack.ironbank.dto.info.AccountHolderInfoDto;
 import com.ironhack.ironbank.dto.users.AccountHolderDtoResponse;
 import com.ironhack.ironbank.exception.EspecificException;
-import com.ironhack.ironbank.exception.UserNotFoundException;
 import com.ironhack.ironbank.model.entities.Transaction;
 import com.ironhack.ironbank.model.entities.accounts.*;
 import com.ironhack.ironbank.model.entities.users.AccountHolder;
@@ -15,8 +14,6 @@ import com.ironhack.ironbank.model.enums.Status;
 import com.ironhack.ironbank.repository.*;
 import com.ironhack.ironbank.service.utils.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,8 +61,8 @@ public class HoldersService {
      */
 
     public AccountHolderDtoResponse register(AccountHolderDto accountHolderDto) {
-        accountUtils.verifyUserExists(accountHolderDto.getUsername());
-        accountUtils.verifyNifExists(accountHolderDto.getNif());
+        userUtils.verifyUserExists(accountHolderDto.getUsername());
+        userUtils.verifyNifExists(accountHolderDto.getNif());
 
         if (Utils.calculateAge(accountHolderDto.getDateOfBirth())<18) {
             throw new EspecificException("You must have 18 years for register. Please go to the Bank.");
@@ -81,7 +78,7 @@ public class HoldersService {
     }
 
     public AccountHolderDtoResponse update(Optional<String> username, Optional<String> password, Optional<String> address, Optional<String> phone, Optional<String> email) {
-        username.ifPresent(accountUtils::verifyUserExists);
+        username.ifPresent(userUtils::verifyUserExists);
         var accountHolder = (AccountHolder) userUtils.getLoginUser();
         username.ifPresent(accountHolder::setUsername);
         password.ifPresent(s -> accountHolder.setPassword(passwordEncoder.encode(s)));
@@ -280,11 +277,11 @@ public class HoldersService {
         var creditAccount = creditCardAccountRepository.findCreditCardAccountByPrimaryOwner((AccountHolder) accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Credit Card."));
 
-        fraudDetectionUtils.verifyRecurrentOperations(creditAccount);
-        fraudDetectionUtils.verifyExpensiveOperation(creditAccount,amount);
-
         accountUtils.checkAccountNotFreezed(creditAccount);
         accountUtils.checkCreditLimit(creditAccount,amount);
+
+        fraudDetectionUtils.verifyRecurrentOperations(creditAccount);
+        fraudDetectionUtils.verifyExpensiveOperation(creditAccount,amount);
 
         creditAccount.getBalance().increaseAmount(amount);
         creditCardAccountRepository.save(creditAccount);
@@ -320,7 +317,7 @@ public class HoldersService {
         return transacionDtoList;
     }
 
-    public TransactionDto trasnferToAccount(String account, BigDecimal amount) {
+    public TransactionDto transferToAccount(String account, BigDecimal amount) {
         User accountHolder = userUtils.getLoginUser();
         var fromAccount = accountUtils.findCheckingAccountByAccountHolder((AccountHolder) accountHolder);
 

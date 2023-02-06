@@ -10,6 +10,7 @@ import com.ironhack.ironbank.model.entities.users.AccountHolder;
 import com.ironhack.ironbank.model.entities.users.Admin;
 import com.ironhack.ironbank.model.entities.users.ThirdParty;
 import com.ironhack.ironbank.model.entities.users.User;
+import com.ironhack.ironbank.repository.AccountHolderRepository;
 import com.ironhack.ironbank.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,23 @@ public class UserUtils {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final AccountHolderRepository accountHolderRepository;
+
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(()-> new EspecificException("User with ID "+ id +" not found."));
+    }
+
+    public void verifyNifExists(String user) {
+        var findUserInDb = accountHolderRepository.findAccountHolderByNif(user);
+        if (findUserInDb.isPresent()) throw new EspecificException("Nif is registered.");
+    }
+
+    public void verifyUserExists(String user) {
+        var findUserInDb = userRepository.findByUsername(user);
+        if (findUserInDb.isPresent()) throw new EspecificException("Username already exists. Please change username.");
+    }
 
     public Admin createAdmin(AdminDto adminDto) {
         var admin = new Admin();

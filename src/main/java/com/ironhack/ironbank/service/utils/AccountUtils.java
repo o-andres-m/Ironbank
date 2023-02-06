@@ -138,21 +138,6 @@ public class AccountUtils {
 
     }
 
-    //TODO Move this methods to Utils
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(()-> new EspecificException("User with ID "+ id +" not found."));
-    }
-
-    public void verifyUserExists(String user) {
-        var findUserInDb = userRepository.findByUsername(user);
-        if (findUserInDb.isPresent()) throw new EspecificException("Username already exists. Please change username.");
-    }
-
-    public void verifyNifExists(String user) {
-        var findUserInDb = accountHolderRepository.findAccountHolderByNif(user);
-        if (findUserInDb.isPresent()) throw new EspecificException("Nif is registered.");
-    }
-
     public void checkToApplyPenaltyCheckingAC(CheckingAccount checkingAccount, BigDecimal amount) {
         if(checkingAccount.getBalance().getAmount().subtract(amount).doubleValue() < checkingAccount.getMinimumBalance().doubleValue()) {
             checkingAccount.getBalance().decreaseAmount(checkingAccount.getPenaltyFee().getPenaltyAmount());
