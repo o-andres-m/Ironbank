@@ -37,7 +37,8 @@ If some error happens or some action is not supported, the system shows a specif
 
 ### TESTS:
 
-In folder `test` you can run all the tests and verify the coverage running as "Run Tests With Coverage"
+
+For run tests, you first need to run application with the DataLoader. In folder `test` you can run all the tests and verify the coverage running as "Run Tests With Coverage"
 
 
 ## ACCOUNTHOLDERS:
