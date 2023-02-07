@@ -35,6 +35,10 @@ If something happen, and the Interests or Monthly Maintenance doesn't apply auto
 
 If some error happens or some action is not supported, the system shows a specific error but continues working.
 
+### TESTS:
+
+In folder `test` you can run all the tests and verify the coverage running as "Run Tests With Coverage"
+
 
 ## ACCOUNTHOLDERS:
 

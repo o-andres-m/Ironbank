@@ -27,11 +27,7 @@ public class AccountUtils {
 
     private final CheckingAccountRepository checkingAccountRepository;
 
-    private final UserRepository userRepository;
-
     private final AccountRepository accountRepository;
-
-    private final AccountHolderRepository accountHolderRepository;
 
     private final TransactionUtils transactionUtils;
 
@@ -48,13 +44,10 @@ public class AccountUtils {
                 ft.format(dNow);
     }
 
-
-
     public CheckingAccount findCheckingAccountByAccountHolder(AccountHolder accountHolder) {
         return checkingAccountRepository.findCheckingAccountByPrimaryOwner(accountHolder).
                 orElseThrow(()-> new EspecificException("The user doesn't have Checking Account."));
     }
-
 
     public void checkFinalBalance(Account accountToCharge, BigDecimal amount) {
         if (accountToCharge.getBalance().getAmount().subtract(amount).signum() < 0){
@@ -71,13 +64,11 @@ public class AccountUtils {
         return accountFound;
     }
 
-
     public Account getAccountByNumber(String account) {
         var accountFound = accountRepository.findAccountByNumber(account).orElseThrow(
                 ()-> new EspecificException("Account not found."));
         return accountFound;
     }
-
 
     public void checkMinimumBalance(Account account, BigDecimal amount) {
         if (account.getBalance().getAmount().subtract(amount).subtract(account.getPenaltyFee().getPenaltyAmount()).doubleValue() <= 0 &&
